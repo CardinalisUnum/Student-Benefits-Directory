@@ -20,13 +20,13 @@ export const BENEFITS_DATA: Benefit[] = [
     studentPrice: 'Free',
     originalPrice: '$200k+ Value',
     popular: true,
-    brandColor: '#24292e',
+    brandColor: '#7c3aed', // Violet for GitHub copilot vibe
     logoUrl: 'https://logo.clearbit.com/github.com',
-    coverImage: 'https://images.unsplash.com/photo-1607799275518-d58665d48862?auto=format&fit=crop&q=80&w=800'
+    coverImage: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800' // Coding Screen
   },
   {
     id: '2',
-    name: 'Spotify Premium Student',
+    name: 'Spotify Premium',
     provider: 'Spotify',
     description: 'Ad-free music listening, offline playback, and curated playlists.',
     features: [
@@ -40,13 +40,13 @@ export const BENEFITS_DATA: Benefit[] = [
     studentPrice: '₱75/mo',
     originalPrice: '₱149/mo',
     popular: true,
-    brandColor: '#1DB954',
+    brandColor: '#1DB954', // Spotify Green
     logoUrl: 'https://logo.clearbit.com/spotify.com',
-    coverImage: 'https://images.unsplash.com/photo-1614680376593-902f74cf0d41?auto=format&fit=crop&q=80&w=800'
+    coverImage: 'https://images.unsplash.com/photo-1611339555312-e607c8352fd7?auto=format&fit=crop&q=80&w=800' // Spotify UI/Vibe
   },
   {
     id: '3',
-    name: 'Notion Education',
+    name: 'Notion Personal Pro',
     provider: 'Notion',
     description: 'The all-in-one workspace for your notes, tasks, and wikis.',
     features: [
@@ -60,9 +60,9 @@ export const BENEFITS_DATA: Benefit[] = [
     studentPrice: 'Free',
     originalPrice: '$48/yr',
     popular: true,
-    brandColor: '#000000',
+    brandColor: '#ffffff', // Notion White
     logoUrl: 'https://logo.clearbit.com/notion.so',
-    coverImage: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&q=80&w=800'
+    coverImage: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&q=80&w=800' // Clean Desk
   },
   {
     id: '4',
@@ -80,9 +80,9 @@ export const BENEFITS_DATA: Benefit[] = [
     studentPrice: 'Free',
     originalPrice: '₱2,490/yr',
     popular: true,
-    brandColor: '#00C4CC',
+    brandColor: '#00C4CC', // Canva Teal
     logoUrl: 'https://logo.clearbit.com/canva.com',
-    coverImage: 'https://images.unsplash.com/photo-1626785774573-4b79931256fb?auto=format&fit=crop&q=80&w=800'
+    coverImage: 'https://images.unsplash.com/photo-1626785774573-4b7993125651?auto=format&fit=crop&q=80&w=800' // Colorful Abstract
   },
   {
     id: '5',
@@ -100,9 +100,9 @@ export const BENEFITS_DATA: Benefit[] = [
     studentPrice: 'Free',
     originalPrice: '$144/yr',
     popular: true,
-    brandColor: '#F24E1E',
+    brandColor: '#F24E1E', // Figma Red/Orange
     logoUrl: 'https://logo.clearbit.com/figma.com',
-    coverImage: 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?auto=format&fit=crop&q=80&w=800'
+    coverImage: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=800' // Design Software UI
   },
   {
     id: '6',
@@ -120,9 +120,9 @@ export const BENEFITS_DATA: Benefit[] = [
     studentPrice: '₱966/mo',
     originalPrice: '₱2,600/mo',
     popular: true,
-    brandColor: '#FF0000',
+    brandColor: '#FF0000', // Adobe Red
     logoUrl: 'https://logo.clearbit.com/adobe.com',
-    coverImage: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=800'
+    coverImage: 'https://images.unsplash.com/photo-1626785774625-ddcddc3445e9?auto=format&fit=crop&q=80&w=800' // Abstract Colorful Fluid
   },
   {
     id: '7',
@@ -140,9 +140,9 @@ export const BENEFITS_DATA: Benefit[] = [
     studentPrice: 'Free',
     originalPrice: '₱3,499/yr',
     popular: false,
-    brandColor: '#00A4EF',
+    brandColor: '#0078D4', // MS Blue
     logoUrl: 'https://logo.clearbit.com/microsoft.com',
-    coverImage: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&q=80&w=800'
+    coverImage: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=800' // Laptop
   },
   {
     id: '8',
@@ -160,9 +160,9 @@ export const BENEFITS_DATA: Benefit[] = [
     studentPrice: '₱79/mo',
     originalPrice: '₱139/mo',
     popular: false,
-    brandColor: '#FA243C',
+    brandColor: '#FA243C', // Apple Music Red
     logoUrl: 'https://logo.clearbit.com/apple.com',
-    coverImage: 'https://images.unsplash.com/photo-1514525253440-b393452e3383?auto=format&fit=crop&q=80&w=800'
+    coverImage: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=800' // Microphone/Music
   },
   {
     id: '9',
@@ -180,9 +180,9 @@ export const BENEFITS_DATA: Benefit[] = [
     studentPrice: 'Free',
     originalPrice: '$1,800+/yr',
     popular: false,
-    brandColor: '#0696D7',
+    brandColor: '#0696D7', // Autodesk Blue
     logoUrl: 'https://logo.clearbit.com/autodesk.com',
-    coverImage: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=800'
+    coverImage: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=800' // Architecture
   },
   {
     id: '10',
@@ -200,13 +200,13 @@ export const BENEFITS_DATA: Benefit[] = [
     studentPrice: 'Free',
     originalPrice: '$289/yr',
     popular: true,
-    brandColor: '#080808',
+    brandColor: '#FF318C', // JetBrains Pink/Gradient
     logoUrl: 'https://logo.clearbit.com/jetbrains.com',
-    coverImage: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800'
+    coverImage: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?auto=format&fit=crop&q=80&w=800' // Matrix Code
   },
   {
     id: '11',
-    name: 'Amazon Prime Student',
+    name: 'Amazon Prime',
     provider: 'Amazon',
     description: 'Fast shipping, Prime Video, and exclusive college deals.',
     features: [
@@ -220,13 +220,13 @@ export const BENEFITS_DATA: Benefit[] = [
     studentPrice: 'Free (6mo)',
     originalPrice: '$7.49/mo',
     popular: false,
-    brandColor: '#00A8E1',
+    brandColor: '#00A8E1', // Amazon Blue
     logoUrl: 'https://logo.clearbit.com/amazon.com',
-    coverImage: 'https://images.unsplash.com/photo-1523474253046-8cd2748b5fd2?auto=format&fit=crop&q=80&w=800'
+    coverImage: 'https://images.unsplash.com/photo-1523474253046-8cd2748b5fd2?auto=format&fit=crop&q=80&w=800' // Boxes
   },
   {
     id: '12',
-    name: 'Headspace Student',
+    name: 'Headspace',
     provider: 'Headspace',
     description: 'Mindfulness and meditation for stress, focus, and sleep.',
     features: [
@@ -237,16 +237,16 @@ export const BENEFITS_DATA: Benefit[] = [
     category: Category.PRODUCTIVITY,
     tags: ['Health', 'Focus'],
     link: 'https://www.headspace.com/studentplan',
-    studentPrice: '$9.99/yr',
-    originalPrice: '$69.99/yr',
+    studentPrice: '$10/yr',
+    originalPrice: '$70/yr',
     popular: false,
-    brandColor: '#F47D31',
+    brandColor: '#F47D31', // Headspace Orange
     logoUrl: 'https://logo.clearbit.com/headspace.com',
-    coverImage: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=800'
+    coverImage: 'https://images.unsplash.com/photo-1515023115689-5824734a8375?auto=format&fit=crop&q=80&w=800' // Calm/Water
   },
   {
     id: '13',
-    name: 'Namecheap Domains',
+    name: 'Namecheap',
     provider: 'Namecheap',
     description: 'Get a free .me domain name to kickstart your personal brand.',
     features: [
@@ -260,9 +260,9 @@ export const BENEFITS_DATA: Benefit[] = [
     studentPrice: 'Free',
     originalPrice: '$18/yr',
     popular: false,
-    brandColor: '#DE3723',
+    brandColor: '#DE3723', // Namecheap Red
     logoUrl: 'https://logo.clearbit.com/namecheap.com',
-    coverImage: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&q=80&w=800'
+    coverImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800' // Data Center
   },
   {
     id: '14',
@@ -280,9 +280,9 @@ export const BENEFITS_DATA: Benefit[] = [
     studentPrice: 'Free',
     originalPrice: '$8/mo',
     popular: false,
-    brandColor: '#5E6AD2',
+    brandColor: '#5E6AD2', // Linear Purple
     logoUrl: 'https://logo.clearbit.com/linear.app',
-    coverImage: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&q=80&w=800'
+    coverImage: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&q=80&w=800' // Planning
   },
   {
     id: '15',
@@ -300,13 +300,13 @@ export const BENEFITS_DATA: Benefit[] = [
     studentPrice: '40% OFF',
     originalPrice: '$449',
     popular: false,
-    brandColor: '#000000',
+    brandColor: '#a0a0a0', // Grey
     logoUrl: 'https://logo.clearbit.com/ableton.com',
-    coverImage: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800'
+    coverImage: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800' // Studio
   },
   {
     id: '16',
-    name: 'Evernote Personal',
+    name: 'Evernote',
     provider: 'Evernote',
     description: 'Tame your work, organize your life.',
     features: [
@@ -320,8 +320,8 @@ export const BENEFITS_DATA: Benefit[] = [
     studentPrice: '50% OFF',
     originalPrice: '₱130/mo',
     popular: false,
-    brandColor: '#00A82D',
+    brandColor: '#00A82D', // Evernote Green
     logoUrl: 'https://logo.clearbit.com/evernote.com',
-    coverImage: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&q=80&w=800'
+    coverImage: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&q=80&w=800' // Writing
   }
 ];
