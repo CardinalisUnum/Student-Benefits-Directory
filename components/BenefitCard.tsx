@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Lock, Heart, Zap, ExternalLink, ArrowRight } from 'lucide-react';
 import { Benefit } from '../types';
 
@@ -18,6 +18,7 @@ export const BenefitCard: React.FC<BenefitCardProps> = ({
   onUnlockRequest,
   onToggleFavorite
 }) => {
+  const [imgError, setImgError] = useState(false);
   
   const handleActionClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -38,38 +39,67 @@ export const BenefitCard: React.FC<BenefitCardProps> = ({
         '--brand-color': benefit.brandColor,
       } as React.CSSProperties}
     >
-      {/* Hover Glow Effect using CSS var */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0 bg-gradient-to-br from-[var(--brand-color)]/20 to-transparent blur-xl" />
+      {/* Hover Glow Effect using CSS var - Increased Opacity and Blur */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0 bg-gradient-to-br from-[var(--brand-color)]/40 to-transparent blur-2xl" />
       
       {/* Active Border on Hover */}
       <div className="absolute inset-0 rounded-2xl border border-transparent group-hover:border-[var(--brand-color)]/50 transition-colors duration-500 z-20 pointer-events-none" />
 
-      {/* 1. Image Section (Aspect Ratio Video for consistency) */}
-      <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-800 z-10">
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-80 z-10"></div>
+      {/* 1. Image Section Wrapper - Holds both the image and the floating elements */}
+      <div className="relative w-full z-20">
         
-        <img 
-          src={benefit.coverImage} 
-          alt={benefit.name} 
-          className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110 group-hover:opacity-80"
-          loading="lazy"
-        />
+        {/* Inner Image Container - Handles clipping for zoom effect */}
+        <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-800">
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-80 z-10"></div>
+            
+            {!imgError ? (
+                <img 
+                    src={benefit.coverImage} 
+                    alt={benefit.name} 
+                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110 group-hover:opacity-80"
+                    loading="lazy"
+                    onError={() => setImgError(true)}
+                />
+            ) : (
+                <div 
+                    className="w-full h-full flex items-center justify-center opacity-50"
+                    style={{
+                        background: `linear-gradient(45deg, ${benefit.brandColor}40, #000000)`
+                    }}
+                >
+                    <span className="text-xs text-white/20 font-mono uppercase tracking-widest">{benefit.provider}</span>
+                </div>
+            )}
 
-        {/* Popular Pill */}
-        {benefit.popular && (
-          <div className="absolute top-3 left-3 z-20 bg-black/60 backdrop-blur-md text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 border border-amber-500/20">
-             <Zap size={10} className="fill-amber-400" /> POPULAR
-          </div>
-        )}
+            {/* Popular Pill */}
+            {benefit.popular && (
+              <div className="absolute top-3 left-3 z-20 bg-black/60 backdrop-blur-md text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 border border-amber-500/20">
+                 <Zap size={10} className="fill-amber-400" /> POPULAR
+              </div>
+            )}
 
-        {/* Floating Logo Badge (Overlapping image and body) */}
-        <div className="absolute -bottom-5 left-4 z-30">
-            <div className="w-12 h-12 rounded-xl bg-slate-900 border border-white/10 p-1 shadow-xl shadow-black/50 flex items-center justify-center overflow-hidden">
-                <div className="w-full h-full bg-white rounded-lg flex items-center justify-center p-0.5">
+            <button 
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleFavorite();
+                }}
+                className="absolute top-3 right-3 z-30 p-2 rounded-full bg-black/30 backdrop-blur-md hover:bg-black/60 transition-all border border-white/5 group-hover:bg-black/50"
+            >
+                <Heart 
+                    size={18} 
+                    className={`transition-all drop-shadow-md ${isFavorite ? 'fill-rose-500 text-rose-500' : 'text-white'}`} 
+                />
+            </button>
+        </div>
+
+        {/* Floating Logo Badge - Moved OUTSIDE the overflow-hidden container to prevent clipping */}
+        <div className="absolute -bottom-8 left-5 z-30">
+            <div className="w-16 h-16 rounded-2xl bg-slate-900 border border-white/10 p-1.5 shadow-xl shadow-black/50 flex items-center justify-center overflow-hidden group-hover:scale-110 transition-transform duration-300">
+                <div className="w-full h-full bg-white rounded-xl flex items-center justify-center p-1 relative overflow-hidden">
                      <img 
                         src={benefit.logoUrl} 
                         alt={benefit.provider} 
-                        className="w-full h-full object-contain"
+                        className="w-full h-full object-contain relative z-10"
                         onError={(e) => {
                             (e.target as HTMLImageElement).style.display = 'none';
                             (e.target as HTMLImageElement).parentElement!.style.backgroundColor = benefit.brandColor;
@@ -79,22 +109,10 @@ export const BenefitCard: React.FC<BenefitCardProps> = ({
             </div>
         </div>
 
-        <button 
-            onClick={(e) => {
-                e.stopPropagation();
-                onToggleFavorite();
-            }}
-            className="absolute top-3 right-3 z-30 p-2 rounded-full bg-black/30 backdrop-blur-md hover:bg-black/60 transition-all border border-white/5"
-        >
-            <Heart 
-                size={18} 
-                className={`transition-all drop-shadow-md ${isFavorite ? 'fill-rose-500 text-rose-500' : 'text-white'}`} 
-            />
-        </button>
       </div>
 
-      {/* 2. Content Body */}
-      <div className="pt-8 pb-5 px-5 flex flex-col flex-grow relative z-10">
+      {/* 2. Content Body - Z-Index 10 (lower than image wrapper) */}
+      <div className="pt-12 pb-5 px-5 flex flex-col flex-grow relative z-10">
         
         <div className="flex justify-between items-start mb-2">
             <div>

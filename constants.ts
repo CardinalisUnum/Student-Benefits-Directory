@@ -20,9 +20,10 @@ export const BENEFITS_DATA: Benefit[] = [
     studentPrice: 'Free',
     originalPrice: '$200k+ Value',
     popular: true,
-    brandColor: '#7c3aed', // Violet for GitHub copilot vibe
+    brandColor: '#7c3aed', // Violet
     logoUrl: 'https://logo.clearbit.com/github.com',
-    coverImage: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800' // Coding Screen
+    // Image: GitHub Octocat / Coding
+    coverImage: 'https://images.unsplash.com/photo-1618401471353-b74a5b643375?auto=format&fit=crop&q=80&w=800' 
   },
   {
     id: '2',
@@ -42,7 +43,8 @@ export const BENEFITS_DATA: Benefit[] = [
     popular: true,
     brandColor: '#1DB954', // Spotify Green
     logoUrl: 'https://logo.clearbit.com/spotify.com',
-    coverImage: 'https://images.unsplash.com/photo-1611339555312-e607c8352fd7?auto=format&fit=crop&q=80&w=800' // Spotify UI/Vibe
+    // Image: Spotify App on Phone
+    coverImage: 'https://images.unsplash.com/photo-1614680376593-902f74cf0d41?auto=format&fit=crop&q=80&w=800' 
   },
   {
     id: '3',
@@ -60,9 +62,10 @@ export const BENEFITS_DATA: Benefit[] = [
     studentPrice: 'Free',
     originalPrice: '$48/yr',
     popular: true,
-    brandColor: '#ffffff', // Notion White
+    brandColor: '#FFFFFF', // Changed to White so it glows on dark background
     logoUrl: 'https://logo.clearbit.com/notion.so',
-    coverImage: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&q=80&w=800' // Clean Desk
+    // Image: Clean minimalist workspace / iPad with notes
+    coverImage: 'https://images.unsplash.com/photo-1512314889357-e157c22f938d?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: '4',
@@ -82,7 +85,8 @@ export const BENEFITS_DATA: Benefit[] = [
     popular: true,
     brandColor: '#00C4CC', // Canva Teal
     logoUrl: 'https://logo.clearbit.com/canva.com',
-    coverImage: 'https://images.unsplash.com/photo-1626785774573-4b7993125651?auto=format&fit=crop&q=80&w=800' // Colorful Abstract
+    // Image: Color palettes / Designing
+    coverImage: 'https://images.unsplash.com/photo-1572044162444-ad60f128bdea?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: '5',
@@ -102,7 +106,8 @@ export const BENEFITS_DATA: Benefit[] = [
     popular: true,
     brandColor: '#F24E1E', // Figma Red/Orange
     logoUrl: 'https://logo.clearbit.com/figma.com',
-    coverImage: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=800' // Design Software UI
+    // Image: Figma UI / Wireframing
+    coverImage: 'https://images.unsplash.com/photo-1611162616475-46b635cb6868?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: '6',
@@ -122,7 +127,8 @@ export const BENEFITS_DATA: Benefit[] = [
     popular: true,
     brandColor: '#FF0000', // Adobe Red
     logoUrl: 'https://logo.clearbit.com/adobe.com',
-    coverImage: 'https://images.unsplash.com/photo-1626785774625-ddcddc3445e9?auto=format&fit=crop&q=80&w=800' // Abstract Colorful Fluid
+    // Image: Video Editing Timeline
+    coverImage: 'https://images.unsplash.com/photo-1574717432722-a03306358bec?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: '7',
@@ -142,7 +148,8 @@ export const BENEFITS_DATA: Benefit[] = [
     popular: false,
     brandColor: '#0078D4', // MS Blue
     logoUrl: 'https://logo.clearbit.com/microsoft.com',
-    coverImage: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=800' // Laptop
+    // Image: Laptop with graphs/office work
+    coverImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: '8',
@@ -162,7 +169,8 @@ export const BENEFITS_DATA: Benefit[] = [
     popular: false,
     brandColor: '#FA243C', // Apple Music Red
     logoUrl: 'https://logo.clearbit.com/apple.com',
-    coverImage: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=800' // Microphone/Music
+    // Image: Headphones / High fidelity
+    coverImage: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: '9',
@@ -182,7 +190,8 @@ export const BENEFITS_DATA: Benefit[] = [
     popular: false,
     brandColor: '#0696D7', // Autodesk Blue
     logoUrl: 'https://logo.clearbit.com/autodesk.com',
-    coverImage: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=800' // Architecture
+    // Image: Blueprints / Architecture
+    coverImage: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: '10',
@@ -202,7 +211,8 @@ export const BENEFITS_DATA: Benefit[] = [
     popular: true,
     brandColor: '#FF318C', // JetBrains Pink/Gradient
     logoUrl: 'https://logo.clearbit.com/jetbrains.com',
-    coverImage: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?auto=format&fit=crop&q=80&w=800' // Matrix Code
+    // Image: Code on screen / Developer
+    coverImage: 'https://images.unsplash.com/photo-1555099962-4199c345e5dd?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: '11',
@@ -222,7 +232,8 @@ export const BENEFITS_DATA: Benefit[] = [
     popular: false,
     brandColor: '#00A8E1', // Amazon Blue
     logoUrl: 'https://logo.clearbit.com/amazon.com',
-    coverImage: 'https://images.unsplash.com/photo-1523474253046-8cd2748b5fd2?auto=format&fit=crop&q=80&w=800' // Boxes
+    // Image: Cardboard Boxes / Delivery
+    coverImage: 'https://images.unsplash.com/photo-1523474253046-8cd2748b5fd2?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: '12',
@@ -242,7 +253,8 @@ export const BENEFITS_DATA: Benefit[] = [
     popular: false,
     brandColor: '#F47D31', // Headspace Orange
     logoUrl: 'https://logo.clearbit.com/headspace.com',
-    coverImage: 'https://images.unsplash.com/photo-1515023115689-5824734a8375?auto=format&fit=crop&q=80&w=800' // Calm/Water
+    // Image: Zen stones / Meditation
+    coverImage: 'https://images.unsplash.com/photo-1528319725582-ddc096101511?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: '13',
@@ -262,7 +274,8 @@ export const BENEFITS_DATA: Benefit[] = [
     popular: false,
     brandColor: '#DE3723', // Namecheap Red
     logoUrl: 'https://logo.clearbit.com/namecheap.com',
-    coverImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800' // Data Center
+    // Image: Server Room
+    coverImage: 'https://images.unsplash.com/photo-1558494949-efc0257bb3af?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: '14',
@@ -282,7 +295,8 @@ export const BENEFITS_DATA: Benefit[] = [
     popular: false,
     brandColor: '#5E6AD2', // Linear Purple
     logoUrl: 'https://logo.clearbit.com/linear.app',
-    coverImage: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&q=80&w=800' // Planning
+    // Image: Minimalist dark tech
+    coverImage: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: '15',
@@ -300,9 +314,10 @@ export const BENEFITS_DATA: Benefit[] = [
     studentPrice: '40% OFF',
     originalPrice: '$449',
     popular: false,
-    brandColor: '#a0a0a0', // Grey
+    brandColor: '#E2E2E2', // Light Grey/White to glow on dark
     logoUrl: 'https://logo.clearbit.com/ableton.com',
-    coverImage: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800' // Studio
+    // Image: Music Studio / Mixing Board
+    coverImage: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: '16',
@@ -322,6 +337,7 @@ export const BENEFITS_DATA: Benefit[] = [
     popular: false,
     brandColor: '#00A82D', // Evernote Green
     logoUrl: 'https://logo.clearbit.com/evernote.com',
-    coverImage: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&q=80&w=800' // Writing
+    // Image: Taking notes / Journal
+    coverImage: 'https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?auto=format&fit=crop&q=80&w=800'
   }
 ];

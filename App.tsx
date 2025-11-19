@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, ShieldCheck, ShieldAlert, Filter, GraduationCap, Sparkles, LogIn, LogOut, Heart, MapPin, ExternalLink } from 'lucide-react';
+import { Search, ShieldCheck, ShieldAlert, Filter, GraduationCap, Sparkles, LogIn, LogOut, Heart, MapPin, ExternalLink, X } from 'lucide-react';
 import { BENEFITS_DATA, CATEGORIES } from './constants';
 import { Category, User } from './types';
 import { BenefitCard } from './components/BenefitCard';
@@ -173,7 +174,7 @@ const App: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           
           {/* Hero Section */}
-          <div className="text-center mb-16 relative">
+          <div className="text-center mb-12 relative">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-medium mb-6 animate-fade-in backdrop-blur-md">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
@@ -192,58 +193,79 @@ const App: React.FC = () => {
             <p className="text-lg text-zinc-400 max-w-2xl mx-auto mb-8 animate-slide-up leading-relaxed" style={{ animationDelay: '0.1s' }}>
               Don't pay full price. Use your <span className="text-zinc-200 font-semibold">.edu.ph</span> email from any Philippine university or college to unlock thousands of pesos in software value.
             </p>
+          </div>
 
-            {/* Search & Filter Island */}
-            <div className="max-w-4xl mx-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-2 animate-slide-up shadow-2xl shadow-black/50" style={{ animationDelay: '0.2s' }}>
-              <div className="flex flex-col md:flex-row gap-2">
-                <div className="relative flex-grow group">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Search className="text-zinc-500 group-focus-within:text-indigo-400 transition-colors" size={18} />
+          {/* NEW CLEAN SEARCH & FILTER SECTION */}
+          <div className="max-w-4xl mx-auto mb-16 sticky top-20 z-30">
+            
+            {/* 1. Standalone Search Bar */}
+            <div className="max-w-2xl mx-auto mb-6 animate-slide-up relative" style={{ animationDelay: '0.2s' }}>
+                <div className="relative group">
+                  {/* Magnifying Glass */}
+                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                    <Search className="text-zinc-500 group-focus-within:text-indigo-400 transition-colors" size={22} />
                   </div>
+                  
+                  {/* Input Field */}
                   <input
                     type="text"
-                    className="block w-full pl-11 pr-4 py-3 bg-black/20 border border-transparent rounded-xl text-zinc-200 placeholder-zinc-500 focus:outline-none focus:bg-black/40 focus:ring-1 focus:ring-indigo-500/50 transition-all"
+                    className="block w-full pl-14 pr-12 py-4 bg-slate-900/90 backdrop-blur-md border border-slate-700/50 rounded-full text-white placeholder-zinc-500 focus:outline-none focus:bg-slate-900 focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent shadow-xl shadow-black/20 transition-all text-base"
                     placeholder="Search for Github, Spotify, Notion..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
+                  
+                  {/* Clear Button (Only visible when typing) */}
+                  {searchQuery && (
+                    <button 
+                        onClick={() => setSearchQuery('')}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center animate-fade-in"
+                    >
+                        <div className="bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white rounded-full p-1 transition-colors">
+                            <X size={14} />
+                        </div>
+                    </button>
+                  )}
                 </div>
-                
-                {/* Categories Row with Scrollbar hidden on mobile, wrapped on desktop */}
-                <div className="flex gap-2 overflow-x-auto md:overflow-visible md:flex-wrap md:justify-center pb-2 md:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            </div>
+
+            {/* 2. Category Pills Below */}
+            <div className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
+                <div className="flex gap-3 overflow-x-auto justify-start md:justify-center pb-2 px-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] mask-linear-fade">
                   {user && (
                     <button
                       onClick={() => setSelectedCategory(Category.FAVORITES)}
-                      className={`whitespace-nowrap px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center gap-2 shrink-0
+                      className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 shrink-0 border
                         ${selectedCategory === Category.FAVORITES
-                          ? 'bg-rose-500/20 text-rose-400 ring-1 ring-rose-500/50'
-                          : 'bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-zinc-200'
+                          ? 'bg-rose-500/20 border-rose-500/50 text-rose-400 shadow-lg shadow-rose-900/20'
+                          : 'bg-slate-800/50 border-slate-700/50 text-zinc-400 hover:bg-slate-800 hover:text-zinc-200'
                         }`}
                     >
-                      <Heart size={16} className={selectedCategory === Category.FAVORITES ? 'fill-rose-400' : ''} />
-                      <span className="hidden md:inline">Favorites</span>
+                      <Heart size={14} className={selectedCategory === Category.FAVORITES ? 'fill-rose-400' : ''} />
+                      <span>Favorites</span>
                     </button>
                   )}
+                  
                   {CATEGORIES.map((category) => (
                     <button
                       key={category}
                       onClick={() => setSelectedCategory(category)}
-                      className={`whitespace-nowrap px-5 py-3 rounded-xl text-sm font-medium transition-all shrink-0
+                      className={`whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-medium transition-all shrink-0 border
                         ${selectedCategory === category
-                          ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25'
-                          : 'bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-zinc-200'
+                          ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-900/50'
+                          : 'bg-slate-800/50 border-slate-700/50 text-zinc-400 hover:bg-slate-800 hover:text-zinc-200'
                         }`}
                     >
                       {category}
                     </button>
                   ))}
                 </div>
-              </div>
             </div>
+
           </div>
 
           {/* Content Grid */}
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-6 flex items-center justify-between">
             <h2 className="text-xl font-semibold text-white">
               {selectedCategory === Category.FAVORITES ? 'Your Saved Perks' : 'Available Benefits'}
             </h2>
