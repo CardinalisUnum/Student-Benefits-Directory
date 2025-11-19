@@ -1,0 +1,5 @@
+{
+  "name": "Student Benefits Directory",
+  "description": "A centralized directory for Filipino students to discover and unlock educational discounts using their .edu.ph email address.",
+  "requestFramePermissions": []
+}
