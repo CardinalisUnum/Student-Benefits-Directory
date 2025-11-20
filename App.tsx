@@ -1,77 +1,157 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, ShieldCheck, ShieldAlert, Filter, GraduationCap, Sparkles, LogIn, LogOut, Heart, MapPin, ExternalLink, X } from 'lucide-react';
+import { Search, ShieldCheck, ShieldAlert, Filter, GraduationCap, LogIn, LogOut, Heart, X, Database, Lock } from 'lucide-react';
 import { BENEFITS_DATA, CATEGORIES } from './constants';
 import { Category, User } from './types';
 import { BenefitCard } from './components/BenefitCard';
+import { PopularCarousel } from './components/PopularCarousel';
 import { VerificationModal } from './components/VerificationModal';
 import { AuthModal } from './components/AuthModal';
+import { PrivacyModal } from './components/PrivacyModal';
+import { supabase, isSupabaseConfigured } from './supabaseClient';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [loadingUser, setLoadingUser] = useState(true);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<Category>(Category.ALL);
 
-  // Load User from LocalStorage on Mount
+  // --- SUPABASE AUTH & DATA FETCHING ---
   useEffect(() => {
-    const storedUser = localStorage.getItem('sbd_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    // 1. Check for existing session
+    const checkSession = async () => {
+      if (!isSupabaseConfigured()) {
+        // Fallback for demo purposes if no keys provided
+        const storedUser = localStorage.getItem('sbd_user');
+        if (storedUser) setUser(JSON.parse(storedUser));
+        setLoadingUser(false);
+        return;
+      }
+
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        await fetchProfile(session.user.id, session.user.email);
+      } else {
+        setLoadingUser(false);
+      }
+    };
+
+    checkSession();
+
+    // 2. Listen for auth changes (Login/Logout)
+    // Only subscribe if configured to avoid errors
+    if (isSupabaseConfigured()) {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+            await fetchProfile(session.user.id, session.user.email);
+        } else if (event === 'SIGNED_OUT') {
+            setUser(null);
+            setSelectedCategory(Category.ALL);
+        }
+        });
+        return () => subscription.unsubscribe();
     }
   }, []);
 
-  // Persist User Updates
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem('sbd_user', JSON.stringify(user));
+  // Fetch Profile Data from DB
+  const fetchProfile = async (userId: string, email?: string) => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching profile:', error);
+      }
+
+      // If no profile exists yet, we create a temporary user object
+      // In a real app, we would insert a row into 'profiles' on signup trigger
+      if (profile) {
+        setUser({
+          id: profile.id,
+          name: profile.full_name || 'Student',
+          email: profile.email || email || '',
+          isVerified: profile.is_verified || false,
+          university: profile.university,
+          favorites: profile.favorites || []
+        });
+      } else {
+        // Init profile row if missing (simplified for demo)
+        const newProfile = { id: userId, email: email, favorites: [] };
+        await supabase.from('profiles').insert([newProfile]);
+        setUser({
+          id: userId,
+          name: 'Student',
+          email: email || '',
+          isVerified: false,
+          favorites: []
+        });
+      }
+    } catch (error) {
+      console.error('Profile load error', error);
+    } finally {
+      setLoadingUser(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    if (isSupabaseConfigured()) {
+      await supabase.auth.signOut();
+      setUser(null);
+      setSelectedCategory(Category.ALL);
     } else {
+      // Fallback demo logout
+      setUser(null);
       localStorage.removeItem('sbd_user');
-    }
-  }, [user]);
-
-  const handleLogin = (loggedInUser: User) => {
-    setUser(loggedInUser);
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-    setSelectedCategory(Category.ALL);
-  };
-
-  const handleVerify = (email: string) => {
-    if (user) {
-      setUser({
-        ...user,
-        isVerified: true,
-        verifiedEmail: email
-      });
+      setSelectedCategory(Category.ALL);
     }
   };
 
-  const toggleFavorite = (benefitId: string) => {
+  const handleVerificationSuccess = async () => {
+    // Refresh profile to get updated verified status
+    if (user && isSupabaseConfigured()) {
+      await fetchProfile(user.id, user.email);
+    } else if (user) {
+       // Fallback demo update
+       const updatedUser = { ...user, isVerified: true };
+       setUser(updatedUser);
+       localStorage.setItem('sbd_user', JSON.stringify(updatedUser));
+    }
+  };
+
+  const toggleFavorite = async (benefitId: string) => {
     if (!user) {
       setIsAuthModalOpen(true);
       return;
     }
 
     const isFav = user.favorites.includes(benefitId);
-    let newFavorites;
-    if (isFav) {
-      newFavorites = user.favorites.filter(id => id !== benefitId);
-    } else {
-      newFavorites = [...user.favorites, benefitId];
-    }
+    const newFavorites = isFav 
+      ? user.favorites.filter(id => id !== benefitId)
+      : [...user.favorites, benefitId];
 
-    setUser({
-      ...user,
-      favorites: newFavorites
-    });
+    // Optimistic UI update
+    setUser({ ...user, favorites: newFavorites });
+
+    // DB Update
+    if (isSupabaseConfigured()) {
+      await supabase
+        .from('profiles')
+        .update({ favorites: newFavorites })
+        .eq('id', user.id);
+    } else {
+       // Fallback
+       localStorage.setItem('sbd_user', JSON.stringify({ ...user, favorites: newFavorites }));
+    }
   };
 
-  // This function is now passed to the card to handle the "Unlock" action
   const handleUnlockRequest = () => {
     if (!user) {
       setIsAuthModalOpen(true);
@@ -80,6 +160,7 @@ const App: React.FC = () => {
     }
   };
 
+  // Filter Logic
   const filteredBenefits = useMemo(() => {
     return BENEFITS_DATA.filter((benefit) => {
       const matchesSearch = 
@@ -98,9 +179,39 @@ const App: React.FC = () => {
     });
   }, [searchQuery, selectedCategory, user]);
 
+  // Popular Benefits Logic
+  const popularBenefits = useMemo(() => {
+    return BENEFITS_DATA.filter(b => b.popular);
+  }, []);
+
+  if (loadingUser) {
+    return (
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-[#050505] text-zinc-300 selection:bg-indigo-500/30 selection:text-indigo-200 font-sans">
       
+      {/* DEVELOPMENT MODE BANNER */}
+      {!isSupabaseConfigured() && (
+        <div className="bg-indigo-900/30 border-b border-indigo-500/20 px-4 py-2 flex items-center justify-center gap-3 text-xs text-indigo-200 font-medium">
+            <Database size={14} className="text-indigo-400 animate-pulse" />
+            <span>
+                <strong className="text-white">Demo Mode Active:</strong> Database is not connected. Data is stored locally in your browser.
+            </span>
+            <span className="hidden sm:inline opacity-50">|</span>
+            <button 
+                onClick={() => setIsPrivacyModalOpen(true)}
+                className="underline hover:text-white transition-colors"
+            >
+                See Privacy & Security Protocols
+            </button>
+        </div>
+      )}
+
       {/* Ambient Background Effects */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-900/10 rounded-full blur-[120px]" />
@@ -146,11 +257,12 @@ const App: React.FC = () => {
 
                   <div className="flex items-center gap-3 pl-3 md:border-l md:border-white/10">
                     <div className="hidden md:block text-right">
-                      <div className="text-sm font-medium text-zinc-200">{user.name}</div>
+                      <div className="text-sm font-medium text-zinc-200 max-w-[100px] truncate">{user.email.split('@')[0]}</div>
                     </div>
                     <button 
                       onClick={handleLogout}
                       className="p-2 text-zinc-500 hover:text-white hover:bg-white/5 rounded-full transition-colors"
+                      title="Log Out"
                     >
                       <LogOut size={18} />
                     </button>
@@ -195,7 +307,7 @@ const App: React.FC = () => {
             </p>
           </div>
 
-          {/* NEW CLEAN SEARCH & FILTER SECTION */}
+          {/* SEARCH & FILTER SECTION */}
           <div className="max-w-4xl mx-auto mb-16 sticky top-20 z-30">
             
             {/* 1. Standalone Search Bar */}
@@ -210,7 +322,7 @@ const App: React.FC = () => {
                   <input
                     type="text"
                     className="block w-full pl-14 pr-12 py-4 bg-slate-900/90 backdrop-blur-md border border-slate-700/50 rounded-full text-white placeholder-zinc-500 focus:outline-none focus:bg-slate-900 focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent shadow-xl shadow-black/20 transition-all text-base"
-                    placeholder="Search for Github, Spotify, Notion..."
+                    placeholder="Search for Perplexity, Cursor, GitHub, Spotify..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -229,9 +341,20 @@ const App: React.FC = () => {
                 </div>
             </div>
 
-            {/* 2. Category Pills Below */}
+            {/* 2. Category Pills */}
             <div className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
                 <div className="flex gap-3 overflow-x-auto justify-start md:justify-center pb-2 px-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] mask-linear-fade">
+                  <button
+                      onClick={() => setSelectedCategory(Category.ALL)}
+                      className={`whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-medium transition-all shrink-0 border
+                        ${selectedCategory === Category.ALL
+                          ? 'bg-white text-black border-white shadow-lg shadow-white/10'
+                          : 'bg-slate-800/50 border-slate-700/50 text-zinc-400 hover:bg-slate-800 hover:text-zinc-200'
+                        }`}
+                    >
+                      All
+                  </button>
+
                   {user && (
                     <button
                       onClick={() => setSelectedCategory(Category.FAVORITES)}
@@ -263,6 +386,17 @@ const App: React.FC = () => {
             </div>
 
           </div>
+          
+          {/* POPULAR / HOT CAROUSEL */}
+          {/* Only show when on 'All' category and not searching, to avoid clutter */}
+          {selectedCategory === Category.ALL && !searchQuery && (
+            <PopularCarousel 
+              benefits={popularBenefits} 
+              user={user}
+              onUnlockRequest={handleUnlockRequest}
+              onToggleFavorite={toggleFavorite}
+            />
+          )}
 
           {/* Content Grid */}
           <div className="mb-6 flex items-center justify-between">
@@ -330,9 +464,18 @@ const App: React.FC = () => {
               <span>Davao</span>
             </div>
             
-            <p className="text-zinc-600 text-sm">
-              © {new Date().getFullYear()}. Not affiliated with any listed brands.
-            </p>
+            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
+                <button 
+                    onClick={() => setIsPrivacyModalOpen(true)}
+                    className="text-xs text-zinc-500 hover:text-white flex items-center gap-1 transition-colors"
+                >
+                    <Lock size={12} />
+                    Privacy Policy
+                </button>
+                <p className="text-zinc-600 text-xs">
+                © {new Date().getFullYear()}. Not affiliated with any listed brands.
+                </p>
+            </div>
           </div>
         </div>
       </footer>
@@ -341,12 +484,16 @@ const App: React.FC = () => {
       <VerificationModal 
         isOpen={isVerificationModalOpen}
         onClose={() => setIsVerificationModalOpen(false)}
-        onVerify={handleVerify}
+        currentUser={user}
+        onVerificationSuccess={handleVerificationSuccess}
       />
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        onLogin={handleLogin}
+      />
+      <PrivacyModal 
+        isOpen={isPrivacyModalOpen}
+        onClose={() => setIsPrivacyModalOpen(false)}
       />
     </div>
   );

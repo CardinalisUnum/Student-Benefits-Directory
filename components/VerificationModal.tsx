@@ -1,13 +1,17 @@
+
 import React, { useState, useEffect } from 'react';
-import { X, GraduationCap, Check, AlertCircle, Loader2 } from 'lucide-react';
+import { X, GraduationCap, Check, AlertCircle, Loader2, ShieldCheck } from 'lucide-react';
+import { supabase, isSupabaseConfigured } from '../supabaseClient';
+import { User } from '../types';
 
 interface VerificationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onVerify: (email: string) => void;
+  currentUser: User | null;
+  onVerificationSuccess: () => void;
 }
 
-export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, onClose, onVerify }) => {
+export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, onClose, currentUser, onVerificationSuccess }) => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -15,12 +19,12 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, on
 
   useEffect(() => {
     if (isOpen) {
-      setEmail('');
+      setEmail(currentUser?.email?.endsWith('.edu.ph') ? currentUser.email : '');
       setError('');
       setIsSuccess(false);
       setIsLoading(false);
     }
-  }, [isOpen]);
+  }, [isOpen, currentUser]);
 
   if (!isOpen) return null;
 
@@ -29,29 +33,45 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, on
     setError('');
     setIsLoading(true);
 
-    // Simulate network delay for better UX
-    setTimeout(() => {
-      if (!email) {
-        setError('Please enter your email address.');
-        setIsLoading(false);
-        return;
-      }
+    // 1. Strict Regex Validation
+    const eduPhRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.edu\.ph$/;
 
-      if (!email.endsWith('.edu.ph')) {
-        setError('Please use a valid .edu.ph student email address.');
-        setIsLoading(false);
-        return;
+    if (!eduPhRegex.test(email)) {
+      setError('Invalid format. Must be a valid school email ending in .edu.ph');
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      if (isSupabaseConfigured() && currentUser) {
+         // 2. Database Update (if Supabase is active)
+         const { error: updateError } = await supabase
+           .from('profiles')
+           .update({ 
+             is_verified: true,
+             university: email.split('@')[1], // Extract domain as university
+             email: email // Update email in profile if different
+           })
+           .eq('id', currentUser.id);
+
+         if (updateError) throw updateError;
+      } else {
+          // Fallback simulation delay for demo purposes if Supabase isn't connected
+          await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
       setIsSuccess(true);
-      setIsLoading(false);
-      
-      // Close modal after showing success state
       setTimeout(() => {
-        onVerify(email);
+        onVerificationSuccess();
         onClose();
       }, 1500);
-    }, 800);
+
+    } catch (err: any) {
+      console.error(err);
+      setError('Verification failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -103,7 +123,7 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, on
                     id="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@university.edu.ph"
+                    placeholder="juan@university.edu.ph"
                     className={`w-full bg-slate-950 border ${error ? 'border-red-500' : 'border-slate-700'} rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all`}
                     autoFocus
                   />
@@ -133,10 +153,17 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, on
                 </button>
               </div>
 
-              <p className="text-center text-xs text-slate-500 mt-4">
-                We verify that your email ends in <code className="bg-slate-800 px-1 py-0.5 rounded text-slate-400">.edu.ph</code>. 
-                We do not store your data.
-              </p>
+              {/* Security & Privacy Disclaimer */}
+              <div className="bg-slate-800/50 rounded-lg p-3 mt-4 border border-slate-700/50">
+                <div className="flex gap-2 items-start">
+                    <ShieldCheck size={14} className="text-emerald-400 mt-0.5 shrink-0" />
+                    <div>
+                        <p className="text-[10px] text-slate-400 leading-relaxed">
+                            <strong className="text-slate-300">Data Privacy Protected:</strong> We verify your .edu.ph email to confirm eligibility. Your data is securely encrypted.
+                        </p>
+                    </div>
+                </div>
+              </div>
             </form>
           )}
         </div>

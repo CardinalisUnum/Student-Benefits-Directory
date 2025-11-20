@@ -1,65 +1,68 @@
+
 import React, { useState, useEffect } from 'react';
-import { X, Mail, Lock, User as UserIcon, ArrowRight, Loader2 } from 'lucide-react';
-import { User } from '../types';
+import { X, Mail, Lock, User as UserIcon, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
+import { supabase, isSupabaseConfigured } from '../supabaseClient';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLogin: (user: User) => void;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
-  const [isLoginView, setIsLoginView] = useState(true);
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: ''
-  });
+  const [email, setEmail] = useState('');
+  const [fullName, setFullName] = useState(''); // Only used for initial profile creation if needed
   const [error, setError] = useState('');
+  const [magicLinkSent, setMagicLinkSent] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      setFormData({ name: '', email: '', password: '' });
+      setEmail('');
+      setFullName('');
       setError('');
       setIsLoading(false);
+      setMagicLinkSent(false);
     }
   }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleMagicLinkLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    
+    if (!isSupabaseConfigured()) {
+      setError('Supabase is not configured. Please add your API keys in supabaseClient.ts');
+      return;
+    }
+
+    if (!email.includes('@')) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          // In a real app, you can set a redirect URL here
+          // emailRedirectTo: window.location.origin,
+          data: {
+            full_name: fullName
+          }
+        },
+      });
+
+      if (error) throw error;
+
+      setMagicLinkSent(true);
+    } catch (err: any) {
+      setError(err.message || 'An error occurred sending the login link.');
+    } finally {
       setIsLoading(false);
-
-      if (!formData.email || !formData.password || (!isLoginView && !formData.name)) {
-        setError('Please fill in all fields.');
-        return;
-      }
-
-      if (!formData.email.includes('@')) {
-        setError('Please enter a valid email address.');
-        return;
-      }
-
-      // Mock User Creation/Retrieval
-      const user: User = {
-        name: isLoginView ? (formData.email.split('@')[0]) : formData.name,
-        email: formData.email,
-        isVerified: false, // Default to false, user needs to verify separately
-        favorites: []
-      };
-
-      // In a real app, we would validate credentials or create account here.
-      // For this demo, we just "log them in"
-      onLogin(user);
-      onClose();
-    }, 1000);
+    }
   };
 
   return (
@@ -71,7 +74,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
       
       <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden animate-slide-up">
         
-        {/* Close Button */}
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors z-10"
@@ -82,87 +84,82 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
         <div className="p-8">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-white mb-2">
-              {isLoginView ? 'Welcome Back' : 'Create Account'}
+              Student Access
             </h2>
             <p className="text-slate-400 text-sm">
-              {isLoginView 
-                ? 'Login to access your saved benefits' 
-                : 'Sign up to start claiming student perks'}
+              We use secure Magic Links. No passwords required.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {!isLoginView && (
+          {magicLinkSent ? (
+            <div className="text-center animate-fade-in">
+              <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 className="text-emerald-400" size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Check your email</h3>
+              <p className="text-slate-400 mb-6">
+                We sent a magic link to <span className="text-white font-medium">{email}</span>.<br/>
+                Click it to log in instantly.
+              </p>
+              <button
+                onClick={onClose}
+                className="w-full bg-slate-800 hover:bg-slate-700 text-white font-medium py-3 px-4 rounded-xl transition-all"
+              >
+                Close
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleMagicLinkLogin} className="space-y-4">
+              <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-3 text-xs text-indigo-300 mb-4">
+                <strong>Tip:</strong> Using your university email here helps with verification later, but any email works for an account.
+              </div>
+
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <UserIcon className="text-slate-500" size={18} />
                 </div>
                 <input
                   type="text"
-                  placeholder="Full Name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  placeholder="Full Name (Optional)"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
                 />
               </div>
-            )}
 
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="text-slate-500" size={18} />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="text-slate-500" size={18} />
+                </div>
+                <input
+                  type="email"
+                  placeholder="Email Address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+                />
               </div>
-              <input
-                type="email"
-                placeholder="Email Address"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
-              />
-            </div>
 
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="text-slate-500" size={18} />
-              </div>
-              <input
-                type="password"
-                placeholder="Password"
-                value={formData.password}
-                onChange={(e) => setFormData({...formData, password: e.target.value})}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
-              />
-            </div>
-
-            {error && (
-              <div className="text-red-400 text-xs text-center">{error}</div>
-            )}
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 mt-2"
-            >
-              {isLoading ? (
-                <Loader2 size={20} className="animate-spin" />
-              ) : (
-                <>
-                  {isLoginView ? 'Log In' : 'Sign Up'}
-                  <ArrowRight size={18} />
-                </>
+              {error && (
+                <div className="text-red-400 text-xs text-center bg-red-500/10 p-2 rounded-lg border border-red-500/20">{error}</div>
               )}
-            </button>
-          </form>
 
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => setIsLoginView(!isLoginView)}
-              className="text-sm text-slate-400 hover:text-indigo-400 transition-colors"
-            >
-              {isLoginView 
-                ? "Don't have an account? Sign up" 
-                : "Already have an account? Log in"}
-            </button>
-          </div>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 mt-2"
+              >
+                {isLoading ? (
+                  <Loader2 size={20} className="animate-spin" />
+                ) : (
+                  <>
+                    Send Magic Link
+                    <ArrowRight size={18} />
+                  </>
+                )}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>
