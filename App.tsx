@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, ShieldCheck, ShieldAlert, Filter, GraduationCap, LogIn, LogOut, Heart, X, Database, Lock } from 'lucide-react';
+import { Search, ShieldCheck, ShieldAlert, Filter, GraduationCap, LogIn, LogOut, Heart, X, Database, Lock, Sparkles } from 'lucide-react';
 import { BENEFITS_DATA, CATEGORIES } from './constants';
 import { Category, User } from './types';
 import { BenefitCard } from './components/BenefitCard';
@@ -22,10 +22,8 @@ const App: React.FC = () => {
 
   // --- SUPABASE AUTH & DATA FETCHING ---
   useEffect(() => {
-    // 1. Check for existing session
     const checkSession = async () => {
       if (!isSupabaseConfigured()) {
-        // Fallback for demo purposes if no keys provided
         const storedUser = localStorage.getItem('sbd_user');
         if (storedUser) setUser(JSON.parse(storedUser));
         setLoadingUser(false);
@@ -43,8 +41,6 @@ const App: React.FC = () => {
 
     checkSession();
 
-    // 2. Listen for auth changes (Login/Logout)
-    // Only subscribe if configured to avoid errors
     if (isSupabaseConfigured()) {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
         if (event === 'SIGNED_IN' && session?.user) {
@@ -58,7 +54,6 @@ const App: React.FC = () => {
     }
   }, []);
 
-  // Fetch Profile Data from DB
   const fetchProfile = async (userId: string, email?: string) => {
     try {
       const { data: profile, error } = await supabase
@@ -71,8 +66,6 @@ const App: React.FC = () => {
         console.error('Error fetching profile:', error);
       }
 
-      // If no profile exists yet, we create a temporary user object
-      // In a real app, we would insert a row into 'profiles' on signup trigger
       if (profile) {
         setUser({
           id: profile.id,
@@ -83,7 +76,6 @@ const App: React.FC = () => {
           favorites: profile.favorites || []
         });
       } else {
-        // Init profile row if missing (simplified for demo)
         const newProfile = { id: userId, email: email, favorites: [] };
         await supabase.from('profiles').insert([newProfile]);
         setUser({
@@ -104,22 +96,16 @@ const App: React.FC = () => {
   const handleLogout = async () => {
     if (isSupabaseConfigured()) {
       await supabase.auth.signOut();
-      setUser(null);
-      setSelectedCategory(Category.ALL);
-    } else {
-      // Fallback demo logout
-      setUser(null);
-      localStorage.removeItem('sbd_user');
-      setSelectedCategory(Category.ALL);
-    }
+    } 
+    setUser(null);
+    localStorage.removeItem('sbd_user');
+    setSelectedCategory(Category.ALL);
   };
 
   const handleVerificationSuccess = async () => {
-    // Refresh profile to get updated verified status
     if (user && isSupabaseConfigured()) {
       await fetchProfile(user.id, user.email);
     } else if (user) {
-       // Fallback demo update
        const updatedUser = { ...user, isVerified: true };
        setUser(updatedUser);
        localStorage.setItem('sbd_user', JSON.stringify(updatedUser));
@@ -137,17 +123,14 @@ const App: React.FC = () => {
       ? user.favorites.filter(id => id !== benefitId)
       : [...user.favorites, benefitId];
 
-    // Optimistic UI update
     setUser({ ...user, favorites: newFavorites });
 
-    // DB Update
     if (isSupabaseConfigured()) {
       await supabase
         .from('profiles')
         .update({ favorites: newFavorites })
         .eq('id', user.id);
     } else {
-       // Fallback
        localStorage.setItem('sbd_user', JSON.stringify({ ...user, favorites: newFavorites }));
     }
   };
@@ -160,7 +143,6 @@ const App: React.FC = () => {
     }
   };
 
-  // Filter Logic
   const filteredBenefits = useMemo(() => {
     return BENEFITS_DATA.filter((benefit) => {
       const matchesSearch = 
@@ -179,89 +161,77 @@ const App: React.FC = () => {
     });
   }, [searchQuery, selectedCategory, user]);
 
-  // Popular Benefits Logic
   const popularBenefits = useMemo(() => {
     return BENEFITS_DATA.filter(b => b.popular);
   }, []);
 
   if (loadingUser) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#050505] text-zinc-300 selection:bg-indigo-500/30 selection:text-indigo-200 font-sans">
+    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30 selection:text-indigo-200 overflow-x-hidden relative">
       
-      {/* DEVELOPMENT MODE BANNER */}
-      {!isSupabaseConfigured() && (
-        <div className="bg-indigo-900/30 border-b border-indigo-500/20 px-4 py-2 flex items-center justify-center gap-3 text-xs text-indigo-200 font-medium">
-            <Database size={14} className="text-indigo-400 animate-pulse" />
-            <span>
-                <strong className="text-white">Demo Mode Active:</strong> Database is not connected. Data is stored locally in your browser.
-            </span>
-            <span className="hidden sm:inline opacity-50">|</span>
-            <button 
-                onClick={() => setIsPrivacyModalOpen(true)}
-                className="underline hover:text-white transition-colors"
-            >
-                See Privacy & Security Protocols
-            </button>
-        </div>
-      )}
-
-      {/* Ambient Background Effects */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-900/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-900/10 rounded-full blur-[120px]" />
+      {/* 1. Aesthetic Background Layer */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        {/* Primary Accent Blob */}
+        <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[128px] opacity-60 animate-pulse" style={{ animationDuration: '4s' }} />
+        {/* Secondary Accent Blob */}
+        <div className="absolute bottom-[10%] right-[-5%] w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[128px] opacity-50" />
+        {/* Texture Overlay (Optional noise) */}
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
       </div>
 
-      {/* Navigation */}
-      <nav className="sticky top-0 z-40 w-full bg-[#050505]/80 backdrop-blur-xl border-b border-white/5">
+      {/* 2. Glassmorphic Navbar */}
+      <nav className="sticky top-0 z-50 w-full bg-slate-950/70 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <div className="flex items-center gap-3 cursor-pointer group" onClick={() => {
               setSelectedCategory(Category.ALL);
               setSearchQuery('');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}>
-              <div className="relative w-8 h-8 flex items-center justify-center">
-                <div className="absolute inset-0 bg-indigo-500 blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                <div className="relative w-full h-full bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center shadow-inner border border-white/10">
-                  <GraduationCap className="text-white" size={18} />
-                </div>
+              <div className="relative w-10 h-10 flex items-center justify-center overflow-hidden rounded-xl bg-white/5 border border-white/10 shadow-inner">
+                <GraduationCap className="text-indigo-400 relative z-10" size={20} />
+                <div className="absolute inset-0 bg-gradient-to-tr from-indigo-600/20 to-cyan-500/20" />
               </div>
-              <span className="text-lg font-bold text-white tracking-tight">
-                Student<span className="text-indigo-400">Perks</span><span className="text-xs text-zinc-500 ml-1 font-normal">PH</span>
-              </span>
+              <div>
+                 <h1 className="text-lg font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-200 to-indigo-400">
+                  StudentPerks<span className="text-cyan-400">PH</span>
+                 </h1>
+                 <p className="text-[10px] text-slate-500 font-medium tracking-widest uppercase">Official Directory</p>
+              </div>
             </div>
 
-            {/* Desktop User Controls */}
+            {/* User Controls */}
             <div className="flex items-center gap-4">
               {user ? (
                 <>
                   <div 
                     onClick={() => !user.isVerified && setIsVerificationModalOpen(true)}
-                    className={`hidden md:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer
+                    className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer backdrop-blur-md
                       ${user.isVerified 
-                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 cursor-default' 
-                        : 'bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/20'
+                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 cursor-default shadow-[0_0_15px_rgba(16,185,129,0.2)]' 
+                        : 'bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)] animate-pulse'
                       }`}
                   >
-                    {user.isVerified ? <ShieldCheck size={12} /> : <ShieldAlert size={12} />}
-                    <span>{user.isVerified ? 'Verified Student' : 'Unverified'}</span>
+                    {user.isVerified ? <ShieldCheck size={14} /> : <ShieldAlert size={14} />}
+                    <span>{user.isVerified ? 'VERIFIED' : 'UNVERIFIED'}</span>
                   </div>
 
-                  <div className="flex items-center gap-3 pl-3 md:border-l md:border-white/10">
+                  <div className="flex items-center gap-3 pl-4 md:border-l md:border-white/10">
                     <div className="hidden md:block text-right">
-                      <div className="text-sm font-medium text-zinc-200 max-w-[100px] truncate">{user.email.split('@')[0]}</div>
+                      <div className="text-xs font-medium text-slate-400 uppercase tracking-wider">Logged in as</div>
+                      <div className="text-sm font-bold text-white max-w-[120px] truncate">{user.email.split('@')[0]}</div>
                     </div>
                     <button 
                       onClick={handleLogout}
-                      className="p-2 text-zinc-500 hover:text-white hover:bg-white/5 rounded-full transition-colors"
+                      className="p-2.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-all border border-transparent hover:border-white/10"
                       title="Log Out"
                     >
                       <LogOut size={18} />
@@ -271,10 +241,10 @@ const App: React.FC = () => {
               ) : (
                 <button 
                   onClick={() => setIsAuthModalOpen(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-white text-black hover:bg-zinc-200 rounded-full text-sm font-bold transition-all"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-white text-black hover:bg-slate-200 rounded-xl text-sm font-bold transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]"
                 >
                   <LogIn size={16} />
-                  <span>Log In</span>
+                  <span>Access Vault</span>
                 </button>
               )}
             </div>
@@ -282,113 +252,110 @@ const App: React.FC = () => {
         </div>
       </nav>
 
-      <main className="flex-grow relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <main className="flex-grow relative z-10 pt-12 pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Hero Section */}
-          <div className="text-center mb-12 relative">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-medium mb-6 animate-fade-in backdrop-blur-md">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-              </span>
-              <span>Made for Filipino Students 🇵🇭</span>
+          <div className="text-center mb-16 relative">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-indigo-300 text-xs font-bold uppercase tracking-widest mb-8 animate-fade-in shadow-xl">
+              <Sparkles size={12} className="text-cyan-400" />
+              <span>Exclusive Student Access</span>
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-bold text-white tracking-tight mb-6 animate-slide-up leading-[1.1]">
-              Premium software, <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-400 to-fuchsia-400">
-                free for your studies.
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-slate-200 to-slate-500 mb-6 animate-slide-up leading-[1.1] drop-shadow-2xl">
+              Premium Software.<br/>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-cyan-400 to-emerald-400">
+                Zero Cost.
               </span>
             </h1>
             
-            <p className="text-lg text-zinc-400 max-w-2xl mx-auto mb-8 animate-slide-up leading-relaxed" style={{ animationDelay: '0.1s' }}>
-              Don't pay full price. Use your <span className="text-zinc-200 font-semibold">.edu.ph</span> email from any Philippine university or college to unlock thousands of pesos in software value.
+            <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-12 animate-slide-up font-light leading-relaxed" style={{ animationDelay: '0.1s' }}>
+              Your <span className="text-white font-semibold border-b border-white/20">.edu.ph</span> email is a key to thousands of pesos in software value. We've curated the vault for you.
             </p>
-          </div>
 
-          {/* SEARCH & FILTER SECTION */}
-          <div className="max-w-4xl mx-auto mb-16 sticky top-20 z-30">
-            
-            {/* 1. Standalone Search Bar */}
-            <div className="max-w-2xl mx-auto mb-6 animate-slide-up relative" style={{ animationDelay: '0.2s' }}>
-                <div className="relative group">
-                  {/* Magnifying Glass */}
-                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                    <Search className="text-zinc-500 group-focus-within:text-indigo-400 transition-colors" size={22} />
-                  </div>
-                  
-                  {/* Input Field */}
-                  <input
-                    type="text"
-                    className="block w-full pl-14 pr-12 py-4 bg-slate-900/90 backdrop-blur-md border border-slate-700/50 rounded-full text-white placeholder-zinc-500 focus:outline-none focus:bg-slate-900 focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent shadow-xl shadow-black/20 transition-all text-base"
-                    placeholder="Search for Perplexity, Cursor, GitHub, Spotify..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  
-                  {/* Clear Button (Only visible when typing) */}
-                  {searchQuery && (
-                    <button 
-                        onClick={() => setSearchQuery('')}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center animate-fade-in"
-                    >
-                        <div className="bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white rounded-full p-1 transition-colors">
-                            <X size={14} />
+            {/* BENTO FILTER BAR (Combined Search & Nav) */}
+            <div className="max-w-4xl mx-auto animate-slide-up sticky top-24 z-40" style={{ animationDelay: '0.2s' }}>
+                <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-2 shadow-2xl shadow-black/50 flex flex-col md:flex-row gap-2">
+                    
+                    {/* Glass Input */}
+                    <div className="relative flex-grow group">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <Search className="text-slate-500 group-focus-within:text-indigo-400 transition-colors" size={20} />
                         </div>
-                    </button>
-                  )}
+                        <input
+                            type="text"
+                            className="block w-full pl-12 pr-10 py-3.5 bg-white/5 border border-transparent rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:bg-slate-800 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all text-sm font-medium"
+                            placeholder="Search vault..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                         {searchQuery && (
+                            <button 
+                                onClick={() => setSearchQuery('')}
+                                className="absolute inset-y-0 right-2 flex items-center"
+                            >
+                                <div className="p-1 hover:bg-white/10 rounded-full text-slate-500 hover:text-white transition-colors">
+                                    <X size={16} />
+                                </div>
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Divider for Mobile */}
+                    <div className="h-px w-full bg-white/5 md:hidden"></div>
+
+                    {/* Scrollable Pills Container */}
+                    <div className="relative flex-shrink-0 md:max-w-[60%] overflow-hidden rounded-2xl bg-white/5">
+                         {/* Fade Masks */}
+                        <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-slate-900/80 to-transparent z-10 pointer-events-none md:hidden"></div>
+                        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-slate-900/80 to-transparent z-10 pointer-events-none"></div>
+                        
+                        <div className="flex items-center gap-1 overflow-x-auto p-1.5 h-full hide-scrollbar scroll-smooth">
+                             <button
+                                onClick={() => setSelectedCategory(Category.ALL)}
+                                className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 border
+                                    ${selectedCategory === Category.ALL
+                                    ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-900/50'
+                                    : 'bg-transparent text-slate-400 border-transparent hover:bg-white/5 hover:text-slate-200'
+                                    }`}
+                                >
+                                All
+                            </button>
+
+                            {user && (
+                                <button
+                                onClick={() => setSelectedCategory(Category.FAVORITES)}
+                                className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 border
+                                    ${selectedCategory === Category.FAVORITES
+                                    ? 'bg-rose-600 text-white border-rose-500 shadow-lg shadow-rose-900/50'
+                                    : 'bg-transparent text-slate-400 border-transparent hover:bg-white/5 hover:text-slate-200'
+                                    }`}
+                                >
+                                <Heart size={12} className={selectedCategory === Category.FAVORITES ? 'fill-white' : ''} />
+                                Favorites
+                                </button>
+                            )}
+
+                            {CATEGORIES.map((category) => (
+                                <button
+                                key={category}
+                                onClick={() => setSelectedCategory(category)}
+                                className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 border
+                                    ${selectedCategory === category
+                                    ? 'bg-slate-700 text-white border-slate-600 shadow-lg'
+                                    : 'bg-transparent text-slate-400 border-transparent hover:bg-white/5 hover:text-slate-200'
+                                    }`}
+                                >
+                                {category}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            {/* 2. Category Pills */}
-            <div className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
-                <div className="flex gap-3 overflow-x-auto justify-start md:justify-center pb-2 px-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] mask-linear-fade">
-                  <button
-                      onClick={() => setSelectedCategory(Category.ALL)}
-                      className={`whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-medium transition-all shrink-0 border
-                        ${selectedCategory === Category.ALL
-                          ? 'bg-white text-black border-white shadow-lg shadow-white/10'
-                          : 'bg-slate-800/50 border-slate-700/50 text-zinc-400 hover:bg-slate-800 hover:text-zinc-200'
-                        }`}
-                    >
-                      All
-                  </button>
-
-                  {user && (
-                    <button
-                      onClick={() => setSelectedCategory(Category.FAVORITES)}
-                      className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 shrink-0 border
-                        ${selectedCategory === Category.FAVORITES
-                          ? 'bg-rose-500/20 border-rose-500/50 text-rose-400 shadow-lg shadow-rose-900/20'
-                          : 'bg-slate-800/50 border-slate-700/50 text-zinc-400 hover:bg-slate-800 hover:text-zinc-200'
-                        }`}
-                    >
-                      <Heart size={14} className={selectedCategory === Category.FAVORITES ? 'fill-rose-400' : ''} />
-                      <span>Favorites</span>
-                    </button>
-                  )}
-                  
-                  {CATEGORIES.map((category) => (
-                    <button
-                      key={category}
-                      onClick={() => setSelectedCategory(category)}
-                      className={`whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-medium transition-all shrink-0 border
-                        ${selectedCategory === category
-                          ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-900/50'
-                          : 'bg-slate-800/50 border-slate-700/50 text-zinc-400 hover:bg-slate-800 hover:text-zinc-200'
-                        }`}
-                    >
-                      {category}
-                    </button>
-                  ))}
-                </div>
-            </div>
-
           </div>
           
-          {/* POPULAR / HOT CAROUSEL */}
-          {/* Only show when on 'All' category and not searching, to avoid clutter */}
+          {/* Popular Carousel */}
           {selectedCategory === Category.ALL && !searchQuery && (
             <PopularCarousel 
               benefits={popularBenefits} 
@@ -399,11 +366,17 @@ const App: React.FC = () => {
           )}
 
           {/* Content Grid */}
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-white">
-              {selectedCategory === Category.FAVORITES ? 'Your Saved Perks' : 'Available Benefits'}
+          <div className="mb-8 flex items-center justify-between px-2">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              {selectedCategory === Category.FAVORITES ? (
+                 <><Heart className="fill-rose-500 text-rose-500" /> Your Vault</>
+              ) : (
+                 <><Database className="text-indigo-400" /> Directory</>
+              )}
             </h2>
-            <span className="text-sm text-zinc-500">{filteredBenefits.length} items</span>
+            <div className="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-400 font-mono">
+               {filteredBenefits.length} RESULTS
+            </div>
           </div>
 
           {filteredBenefits.length > 0 ? (
@@ -411,7 +384,7 @@ const App: React.FC = () => {
               {filteredBenefits.map((benefit, index) => (
                 <div 
                   key={benefit.id} 
-                  className="animate-slide-up"
+                  className="animate-slide-up h-full"
                   style={{ animationDelay: `${index * 0.05 + 0.3}s` }}
                 >
                   <BenefitCard 
@@ -425,22 +398,22 @@ const App: React.FC = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-32 border border-dashed border-white/10 rounded-3xl bg-white/5">
-              <div className="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Filter className="h-6 w-6 text-zinc-400" />
+            <div className="text-center py-32 border border-dashed border-white/10 rounded-3xl bg-white/5 backdrop-blur-sm">
+              <div className="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
+                <Filter className="h-6 w-6 text-slate-500" />
               </div>
-              <h3 className="text-lg font-medium text-white">No perks found</h3>
-              <p className="text-zinc-500 mt-2 max-w-xs mx-auto">
-                We couldn't find matches for your search filters. Try clearing them to see all.
+              <h3 className="text-lg font-bold text-white">Vault Empty</h3>
+              <p className="text-slate-500 mt-2 max-w-xs mx-auto text-sm">
+                No perks found matching your criteria.
               </p>
               <button 
                 onClick={() => {
                   setSearchQuery('');
                   setSelectedCategory(Category.ALL);
                 }}
-                className="mt-6 text-indigo-400 hover:text-indigo-300 font-medium text-sm"
+                className="mt-6 px-6 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-indigo-400 text-sm font-bold transition-all"
               >
-                Clear filters
+                Clear Filters
               </button>
             </div>
           )}
@@ -448,32 +421,26 @@ const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-black border-t border-white/10 py-12">
+      <footer className="bg-slate-950/80 backdrop-blur-xl border-t border-white/5 py-12 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-indigo-600 rounded flex items-center justify-center">
-                <GraduationCap size={14} className="text-white" />
+              <div className="w-8 h-8 bg-indigo-600/20 border border-indigo-500/30 rounded-lg flex items-center justify-center">
+                <GraduationCap size={16} className="text-indigo-400" />
               </div>
-              <span className="text-zinc-200 font-bold">StudentPerksPH</span>
+              <span className="text-slate-300 font-bold tracking-tight">StudentPerksPH</span>
             </div>
             
-            <div className="flex items-center gap-6 text-sm text-zinc-500">
-              <span>Manila</span>
-              <span>Cebu</span>
-              <span>Davao</span>
-            </div>
-            
-            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
+            <div className="flex flex-col md:flex-row items-center gap-6">
                 <button 
                     onClick={() => setIsPrivacyModalOpen(true)}
-                    className="text-xs text-zinc-500 hover:text-white flex items-center gap-1 transition-colors"
+                    className="text-xs text-slate-500 hover:text-white flex items-center gap-2 transition-colors font-medium uppercase tracking-wider"
                 >
                     <Lock size={12} />
-                    Privacy Policy
+                    Privacy Protocol
                 </button>
-                <p className="text-zinc-600 text-xs">
-                © {new Date().getFullYear()}. Not affiliated with any listed brands.
+                <p className="text-slate-600 text-xs">
+                © {new Date().getFullYear()} Unofficial Directory.
                 </p>
             </div>
           </div>

@@ -12,7 +12,7 @@ export const BENEFITS_DATA: Benefit[] = [
     id: '1',
     name: 'GitHub Student Pack',
     provider: 'GitHub',
-    description: 'Access to GitHub Copilot, Codespaces, and the best dev tools.',
+    description: 'The ultimate dev toolkit. Access GitHub Copilot, JetBrains, DigitalOcean credits, and 100+ other tools for free.',
     features: [
       'Free GitHub Copilot',
       'JetBrains Pack',
@@ -27,6 +27,26 @@ export const BENEFITS_DATA: Benefit[] = [
     brandColor: '#7c3aed',
     logoUrl: 'https://logo.clearbit.com/github.com',
     coverImage: 'https://images.unsplash.com/photo-1618401471353-b74a5b643375?auto=format&fit=crop&q=80&w=800' 
+  },
+  {
+    id: '39',
+    name: 'Gemini Advanced',
+    provider: 'Google',
+    description: 'Access Google\'s most capable AI, Ultra 1.0. Analyze documents, code, and images with massive context windows.',
+    features: [
+      'Gemini Ultra 1.0',
+      'Python in Excel',
+      '2TB Storage'
+    ],
+    category: Category.AI_ML,
+    tags: ['AI', 'Google', 'Productivity'],
+    link: 'https://one.google.com/explore-plan/gemini-advanced',
+    studentPrice: 'Free (Promo)', 
+    originalPrice: '₱1,100/mo',
+    popular: true,
+    brandColor: '#1A73E8',
+    logoUrl: 'https://logo.clearbit.com/google.com',
+    coverImage: 'https://images.unsplash.com/photo-1697577418970-95d99b5a55cf?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: '2',

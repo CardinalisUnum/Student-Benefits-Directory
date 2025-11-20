@@ -33,7 +33,6 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, on
     setError('');
     setIsLoading(true);
 
-    // 1. Strict Regex Validation
     const eduPhRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.edu\.ph$/;
 
     if (!eduPhRegex.test(email)) {
@@ -44,19 +43,17 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, on
 
     try {
       if (isSupabaseConfigured() && currentUser) {
-         // 2. Database Update (if Supabase is active)
          const { error: updateError } = await supabase
            .from('profiles')
            .update({ 
              is_verified: true,
-             university: email.split('@')[1], // Extract domain as university
-             email: email // Update email in profile if different
+             university: email.split('@')[1], 
+             email: email
            })
            .eq('id', currentUser.id);
 
          if (updateError) throw updateError;
       } else {
-          // Fallback simulation delay for demo purposes if Supabase isn't connected
           await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
@@ -77,15 +74,18 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, on
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div 
-        className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity"
+        className="absolute inset-0 bg-slate-950/90 backdrop-blur-md transition-opacity"
         onClick={onClose}
       />
       
-      <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl transform transition-all animate-slide-up overflow-hidden">
+      <div className="relative w-full max-w-md bg-slate-900/80 backdrop-blur-xl border border-indigo-500/30 rounded-3xl shadow-2xl transform transition-all animate-slide-up overflow-hidden">
+        {/* Ambient glow inside modal */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-indigo-500/20 blur-[50px] pointer-events-none"></div>
+
         {/* Header */}
-        <div className="bg-gradient-to-r from-indigo-900/50 to-slate-900 p-6 border-b border-slate-800">
+        <div className="p-6 border-b border-white/5 relative z-10">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-indigo-500/20 rounded-lg">
+            <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
               <GraduationCap className="text-indigo-400" size={24} />
             </div>
             <button 
@@ -95,27 +95,27 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, on
               <X size={20} />
             </button>
           </div>
-          <h2 className="text-xl font-bold text-white">Student Verification</h2>
+          <h2 className="text-2xl font-bold text-white tracking-tight">Student Verification</h2>
           <p className="text-slate-400 text-sm mt-1">
-            Unlock exclusive deals by verifying your student status.
+            Access the vault. Verify your student status.
           </p>
         </div>
 
         {/* Body */}
-        <div className="p-6">
+        <div className="p-6 relative z-10">
           {isSuccess ? (
             <div className="flex flex-col items-center justify-center py-8 text-center animate-fade-in">
-              <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-4">
-                <Check className="text-green-400 w-8 h-8" />
+              <div className="w-20 h-20 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+                <Check className="text-emerald-400 w-10 h-10" />
               </div>
-              <h3 className="text-lg font-bold text-white mb-1">Verified Successfully!</h3>
-              <p className="text-slate-400">Unlocking your benefits...</p>
+              <h3 className="text-xl font-bold text-white mb-2">Verified</h3>
+              <p className="text-slate-400 text-sm">Vault unlocked. Enjoy your perks.</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-1">
-                  School Email Address
+                <label htmlFor="email" className="block text-xs font-bold text-slate-300 mb-2 uppercase tracking-wider">
+                  University Email
                 </label>
                 <div className="relative">
                   <input
@@ -124,23 +124,23 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, on
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="juan@university.edu.ph"
-                    className={`w-full bg-slate-950 border ${error ? 'border-red-500' : 'border-slate-700'} rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all`}
+                    className={`w-full bg-slate-950/50 border ${error ? 'border-rose-500/50' : 'border-white/10'} rounded-xl px-4 py-3.5 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all shadow-inner`}
                     autoFocus
                   />
                 </div>
                 {error && (
-                  <div className="flex items-center gap-2 mt-2 text-red-400 text-xs animate-fade-in">
-                    <AlertCircle size={12} />
+                  <div className="flex items-center gap-2 mt-3 text-rose-400 text-xs animate-fade-in bg-rose-500/10 p-2 rounded-lg border border-rose-500/20">
+                    <AlertCircle size={14} />
                     <span>{error}</span>
                   </div>
                 )}
               </div>
 
-              <div className="pt-2">
+              <div className="pt-4">
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20"
                 >
                   {isLoading ? (
                     <>
@@ -154,15 +154,11 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, on
               </div>
 
               {/* Security & Privacy Disclaimer */}
-              <div className="bg-slate-800/50 rounded-lg p-3 mt-4 border border-slate-700/50">
-                <div className="flex gap-2 items-start">
-                    <ShieldCheck size={14} className="text-emerald-400 mt-0.5 shrink-0" />
-                    <div>
-                        <p className="text-[10px] text-slate-400 leading-relaxed">
-                            <strong className="text-slate-300">Data Privacy Protected:</strong> We verify your .edu.ph email to confirm eligibility. Your data is securely encrypted.
-                        </p>
-                    </div>
-                </div>
+              <div className="flex gap-3 items-start mt-4 px-1">
+                 <ShieldCheck size={16} className="text-emerald-400 mt-0.5 shrink-0" />
+                 <p className="text-[10px] text-slate-500 leading-relaxed">
+                    <strong>Privacy Protocol:</strong> We only verify domain validity. No personal data or grades are accessed. Data is encrypted.
+                 </p>
               </div>
             </form>
           )}

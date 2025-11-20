@@ -22,7 +22,6 @@ export const PopularCarousel: React.FC<PopularCarouselProps> = ({
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
       const container = scrollContainerRef.current;
-      // Scroll by roughly one card width or a percentage of the view
       const scrollAmount = container.clientWidth < 600 ? 320 : container.clientWidth * 0.5;
       const currentScroll = container.scrollLeft;
       const targetScroll = direction === 'left' 
@@ -39,19 +38,16 @@ export const PopularCarousel: React.FC<PopularCarouselProps> = ({
   if (benefits.length === 0) return null;
 
   return (
-    <div className="w-full mb-12 animate-slide-up relative group/carousel" style={{ animationDelay: '0.4s' }}>
+    <div className="w-full mb-12 animate-slide-up relative group/carousel mt-8" style={{ animationDelay: '0.4s' }}>
       {/* Section Header */}
       <div className="flex items-center justify-between px-4 mb-6 max-w-7xl mx-auto">
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="absolute inset-0 bg-orange-500 blur-lg opacity-20 animate-pulse"></div>
-            <div className="relative p-2 bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-xl border border-orange-500/20">
-               <Flame className="text-orange-500 fill-orange-500/20" size={24} />
-            </div>
+          <div className="relative p-2 bg-orange-500/10 rounded-xl border border-orange-500/20 shadow-[0_0_15px_rgba(249,115,22,0.1)]">
+             <Flame className="text-orange-500" size={20} />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-white tracking-tight">Hot with Students</h2>
-            <p className="text-sm text-zinc-500 font-medium">Trending perks claimed this week</p>
+            <h2 className="text-xl font-bold text-white tracking-tight">Hot with Students</h2>
+            <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Trending This Week</p>
           </div>
         </div>
         
@@ -59,17 +55,17 @@ export const PopularCarousel: React.FC<PopularCarouselProps> = ({
         <div className="hidden md:flex gap-2 opacity-50 group-hover/carousel:opacity-100 transition-opacity">
           <button 
             onClick={() => scroll('left')}
-            className="p-3 rounded-full bg-zinc-900/80 border border-white/10 text-zinc-400 hover:text-white hover:bg-zinc-800 hover:border-white/20 transition-all active:scale-95 backdrop-blur-md"
+            className="p-3 rounded-full bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 backdrop-blur-md"
             aria-label="Scroll left"
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft size={18} />
           </button>
           <button 
             onClick={() => scroll('right')}
-            className="p-3 rounded-full bg-zinc-900/80 border border-white/10 text-zinc-400 hover:text-white hover:bg-zinc-800 hover:border-white/20 transition-all active:scale-95 backdrop-blur-md"
+            className="p-3 rounded-full bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 backdrop-blur-md"
             aria-label="Scroll right"
           >
-            <ChevronRight size={20} />
+            <ChevronRight size={18} />
           </button>
         </div>
       </div>
@@ -77,7 +73,7 @@ export const PopularCarousel: React.FC<PopularCarouselProps> = ({
       {/* Horizontal Scroll Container */}
       <div 
         ref={scrollContainerRef}
-        className="flex overflow-x-auto gap-5 px-4 sm:px-6 lg:px-8 pb-10 pt-2 snap-x snap-mandatory hide-scrollbar items-stretch"
+        className="flex overflow-x-auto gap-5 px-4 sm:px-6 lg:px-8 pb-8 snap-x snap-mandatory hide-scrollbar items-stretch"
       >
         {benefits.map((benefit) => (
           <div 
@@ -93,12 +89,11 @@ export const PopularCarousel: React.FC<PopularCarouselProps> = ({
              />
           </div>
         ))}
-        {/* Padding div to ensure last item is fully viewable with right padding */}
-        <div className="w-1 flex-shrink-0" /> 
+        <div className="w-4 flex-shrink-0" /> 
       </div>
       
       {/* Fade Overlay for Right Edge on Desktop */}
-      <div className="absolute top-24 bottom-10 right-0 w-32 bg-gradient-to-l from-[#050505] to-transparent pointer-events-none z-10 hidden lg:block" />
+      <div className="absolute top-20 bottom-10 right-0 w-32 bg-gradient-to-l from-slate-950 to-transparent pointer-events-none z-10 hidden lg:block" />
     </div>
   );
 };

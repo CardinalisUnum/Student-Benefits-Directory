@@ -33,130 +33,107 @@ export const BenefitCard: React.FC<BenefitCardProps> = ({
 
   return (
     <div 
-      className="group relative w-full bg-slate-900/50 border border-white/5 rounded-2xl overflow-hidden transition-all duration-500 flex flex-col h-full hover:-translate-y-1"
+      className="group relative h-full flex flex-col bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:border-indigo-500/40 hover:shadow-2xl hover:shadow-indigo-500/10"
       style={{
-        // Dynamic variable for the hover glow
         '--brand-color': benefit.brandColor,
       } as React.CSSProperties}
     >
-      {/* Hover Glow Effect using CSS var - Increased Opacity and Blur */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0 bg-gradient-to-br from-[var(--brand-color)]/40 to-transparent blur-2xl" />
-      
-      {/* Active Border on Hover */}
-      <div className="absolute inset-0 rounded-2xl border border-transparent group-hover:border-[var(--brand-color)]/50 transition-colors duration-500 z-20 pointer-events-none" />
+      {/* Dynamic Brand Gradient Overlay - Subtle Top Tint */}
+      <div 
+        className="absolute top-0 left-0 right-0 h-32 opacity-30 pointer-events-none transition-opacity group-hover:opacity-50"
+        style={{
+            background: `linear-gradient(to bottom, ${benefit.brandColor}40, transparent)`
+        }}
+      />
 
-      {/* 1. Image Section Wrapper - Holds both the image and the floating elements */}
-      <div className="relative w-full z-20">
-        
-        {/* Inner Image Container - Handles clipping for zoom effect */}
-        <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-800">
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-80 z-10"></div>
+      {/* 1. Image Section */}
+      <div className="relative w-full p-3">
+        <div className="relative aspect-[2/1] w-full overflow-hidden rounded-2xl bg-slate-900/50 shadow-inner border border-white/5">
             
             {!imgError ? (
                 <img 
                     src={benefit.coverImage} 
                     alt={benefit.name} 
-                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110 group-hover:opacity-80"
+                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100"
                     loading="lazy"
                     onError={() => setImgError(true)}
                 />
             ) : (
-                <div 
-                    className="w-full h-full flex items-center justify-center opacity-50"
-                    style={{
-                        background: `linear-gradient(45deg, ${benefit.brandColor}40, #000000)`
-                    }}
-                >
-                    <span className="text-xs text-white/20 font-mono uppercase tracking-widest">{benefit.provider}</span>
+                <div className="w-full h-full flex items-center justify-center bg-slate-800">
+                    <span className="text-xs text-slate-600 font-mono uppercase tracking-widest">{benefit.provider}</span>
                 </div>
             )}
 
-            {/* Popular Pill */}
+            {/* Overlay Gradient on Image for Text Contrast */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60"></div>
+
+            {/* Popular Badge */}
             {benefit.popular && (
-              <div className="absolute top-3 left-3 z-20 bg-black/60 backdrop-blur-md text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 border border-amber-500/20">
+              <div className="absolute top-3 left-3 z-20 bg-black/60 backdrop-blur-md text-amber-400 text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 border border-amber-500/20 shadow-lg">
                  <Zap size={10} className="fill-amber-400" /> POPULAR
               </div>
             )}
 
+            {/* Favorite Button */}
             <button 
                 onClick={(e) => {
                     e.stopPropagation();
                     onToggleFavorite();
                 }}
-                className="absolute top-3 right-3 z-30 p-2 rounded-full bg-black/30 backdrop-blur-md hover:bg-black/60 transition-all border border-white/5 group-hover:bg-black/50"
+                className="absolute top-3 right-3 z-30 p-2 rounded-xl bg-black/40 backdrop-blur-md hover:bg-black/70 transition-all border border-white/10 group-hover:scale-105"
             >
                 <Heart 
-                    size={18} 
-                    className={`transition-all drop-shadow-md ${isFavorite ? 'fill-rose-500 text-rose-500' : 'text-white'}`} 
+                    size={16} 
+                    className={`transition-all drop-shadow-md ${isFavorite ? 'fill-rose-500 text-rose-500' : 'text-white/80 hover:text-white'}`} 
                 />
             </button>
-        </div>
 
-        {/* Floating Logo Badge - Moved OUTSIDE the overflow-hidden container to prevent clipping */}
-        <div className="absolute -bottom-8 left-5 z-30">
-            <div className="w-16 h-16 rounded-2xl bg-slate-900 border border-white/10 p-1.5 shadow-xl shadow-black/50 flex items-center justify-center overflow-hidden group-hover:scale-110 transition-transform duration-300">
-                <div className="w-full h-full bg-white rounded-xl flex items-center justify-center p-1 relative overflow-hidden">
-                     <img 
-                        src={benefit.logoUrl} 
-                        alt={benefit.provider} 
-                        className="w-full h-full object-contain relative z-10"
-                        onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                            (e.target as HTMLImageElement).parentElement!.style.backgroundColor = benefit.brandColor;
-                        }}
-                    />
-                </div>
+            {/* Logo Badge - Floating on bottom left of image */}
+            <div className="absolute bottom-3 left-3 z-30 w-10 h-10 rounded-lg bg-white p-1 shadow-lg overflow-hidden">
+                <img 
+                    src={benefit.logoUrl} 
+                    alt={benefit.provider} 
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                        (e.target as HTMLImageElement).parentElement!.style.backgroundColor = benefit.brandColor;
+                    }}
+                />
             </div>
         </div>
-
       </div>
 
-      {/* 2. Content Body - Z-Index 10 (lower than image wrapper) */}
-      <div className="pt-12 pb-5 px-5 flex flex-col flex-grow relative z-10">
+      {/* 2. Content Body */}
+      <div className="px-5 pt-2 pb-5 flex flex-col flex-grow relative z-10">
         
-        <div className="flex justify-between items-start mb-2">
-            <div>
-                <h3 className="font-bold text-slate-100 text-lg leading-snug group-hover:text-white transition-colors">
-                    {benefit.name}
-                </h3>
-                <div className="text-xs text-slate-500 font-medium mt-0.5 flex items-center gap-2">
-                    {benefit.provider} 
-                    <span className="w-1 h-1 bg-slate-700 rounded-full"></span>
-                    <span className="text-slate-600 uppercase tracking-wider text-[10px]">{benefit.category}</span>
-                </div>
-            </div>
+        <div className="mb-3">
+            <div className="text-[10px] text-indigo-300 font-bold uppercase tracking-widest mb-1 opacity-80">{benefit.provider}</div>
+            <h3 className="font-bold text-white text-lg leading-tight group-hover:text-indigo-200 transition-colors">
+                {benefit.name}
+            </h3>
         </div>
 
-        <p className="text-sm text-slate-400 leading-relaxed mb-5 line-clamp-2 mt-2">
+        <p className="text-sm text-slate-400 leading-relaxed mb-4 line-clamp-2">
             {benefit.description}
         </p>
 
         {/* Features Pills */}
-        <div className="flex flex-wrap gap-2 mb-6">
+        <div className="flex flex-wrap gap-1.5 mb-6 mt-auto">
             {benefit.features.slice(0, 2).map((feature, idx) => (
                 <span key={idx} className="px-2 py-1 rounded-md bg-white/5 border border-white/5 text-[10px] text-slate-300 font-medium">
                     {feature}
                 </span>
             ))}
-             {benefit.features.length > 2 && (
-                <span className="px-2 py-1 rounded-md bg-white/5 border border-white/5 text-[10px] text-slate-500 font-medium">
-                    +{benefit.features.length - 2} more
-                </span>
-            )}
         </div>
 
         {/* Footer Area */}
-        <div className="mt-auto flex items-end justify-between gap-4 border-t border-white/5 pt-4">
+        <div className="flex items-center justify-between gap-3 pt-4 border-t border-white/5">
             
-            {/* Price Tag */}
             <div>
-                <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-0.5">Student Price</div>
-                <div className="flex items-baseline gap-1.5">
-                    <span className={`text-lg font-bold ${isFree ? 'text-emerald-400' : 'text-white'}`}>
+                <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Value</div>
+                <div className="flex items-center gap-2">
+                    <span className={`text-base font-bold ${isFree ? 'text-emerald-400' : 'text-white'}`}>
                         {benefit.studentPrice}
-                    </span>
-                    <span className="text-xs text-slate-600 line-through decoration-slate-600/50">
-                        {benefit.originalPrice}
                     </span>
                 </div>
             </div>
@@ -164,10 +141,10 @@ export const BenefitCard: React.FC<BenefitCardProps> = ({
             {/* Action Button */}
             <button 
                 onClick={handleActionClick}
-                className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all duration-300 border
+                className={`h-10 px-5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all duration-300 shadow-lg
                     ${isVerified 
-                        ? 'bg-white/10 border-white/10 text-white hover:bg-white hover:text-black hover:border-white' 
-                        : 'bg-transparent border-white/10 text-slate-400 hover:border-slate-600 hover:text-slate-200'
+                        ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-500/25 border border-indigo-400/20' 
+                        : 'bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white border border-white/5'
                     }`}
             >
                 {isVerified ? (
