@@ -1,4 +1,3 @@
-
 import React, { useRef } from 'react';
 import { ChevronLeft, ChevronRight, Flame } from 'lucide-react';
 import { Benefit } from '../types';
@@ -22,14 +21,11 @@ export const PopularCarousel: React.FC<PopularCarouselProps> = ({
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
       const container = scrollContainerRef.current;
-      const scrollAmount = 300; // Increased scroll amount for better desktop navigation
-      const currentScroll = container.scrollLeft;
-      const targetScroll = direction === 'left' 
-        ? currentScroll - scrollAmount 
-        : currentScroll + scrollAmount;
-        
-      container.scrollTo({
-        left: targetScroll,
+      const scrollAmount = 320; 
+      const scrollDirection = direction === 'left' ? -scrollAmount : scrollAmount;
+      
+      container.scrollBy({
+        left: scrollDirection,
         behavior: 'smooth'
       });
     }
@@ -70,14 +66,13 @@ export const PopularCarousel: React.FC<PopularCarouselProps> = ({
         </div>
       </div>
 
-      {/* Horizontal Scroll Container 
-          - Increased py-10 to py-12 to ensure shadows/glows are not cut off vertically.
-          - Changed snap-mandatory to snap-proximity for less frustrating, freer scrolling.
-          - Added scroll-pl-* classes to ensure the first item aligns correctly with padding when snapping back.
-      */}
+      {/* Horizontal Scroll Container */}
       <div 
         ref={scrollContainerRef}
-        className="flex overflow-x-auto gap-4 px-4 sm:px-6 lg:px-8 py-12 snap-x snap-proximity hide-scrollbar items-stretch scroll-pl-4 sm:scroll-pl-6 lg:scroll-pl-8"
+        className="flex overflow-x-auto gap-4 py-16 snap-x snap-proximity hide-scrollbar items-stretch 
+                   -mx-4 sm:-mx-6 lg:-mx-8
+                   px-8 sm:px-12 lg:px-16
+                   scroll-pl-8 sm:scroll-pl-12 lg:scroll-pl-16"
       >
         {benefits.map((benefit) => (
           <div 
@@ -98,7 +93,7 @@ export const PopularCarousel: React.FC<PopularCarouselProps> = ({
         <div className="w-2 sm:w-4 flex-shrink-0" /> 
       </div>
       
-      {/* Fade Overlay for Right Edge on Desktop - reduced opacity to interfere less with glow */}
+      {/* Fade Overlay for Right Edge on Desktop */}
       <div className="absolute top-20 bottom-20 right-0 w-32 bg-gradient-to-l from-slate-950 via-slate-950/50 to-transparent pointer-events-none z-10 hidden lg:block" />
     </div>
   );

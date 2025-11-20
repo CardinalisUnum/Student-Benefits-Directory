@@ -1,6 +1,5 @@
-
-import React, { useState } from 'react';
-import { Lock, Heart, Zap, ExternalLink, ArrowRight } from 'lucide-react';
+import React, { useState, memo } from 'react';
+import { Lock, Heart, Zap, ArrowRight } from 'lucide-react';
 import { Benefit } from '../types';
 
 interface BenefitCardProps {
@@ -12,7 +11,7 @@ interface BenefitCardProps {
   variant?: 'default' | 'compact';
 }
 
-export const BenefitCard: React.FC<BenefitCardProps> = ({ 
+const BenefitCardComponent: React.FC<BenefitCardProps> = ({ 
   benefit, 
   isVerified, 
   isFavorite,
@@ -21,6 +20,7 @@ export const BenefitCard: React.FC<BenefitCardProps> = ({
   variant = 'default'
 }) => {
   const [imgError, setImgError] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const isCompact = variant === 'compact';
   
   const handleActionClick = (e: React.MouseEvent) => {
@@ -70,7 +70,7 @@ export const BenefitCard: React.FC<BenefitCardProps> = ({
             {/* Overlay Gradient on Image for Text Contrast */}
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60"></div>
 
-            {/* Popular Badge - Smaller on Compact */}
+            {/* Popular Badge */}
             {benefit.popular && (
               <div className={`absolute top-2 left-2 z-20 bg-black/60 backdrop-blur-md text-amber-400 font-bold rounded-lg flex items-center gap-1 border border-amber-500/20 shadow-lg
                 ${isCompact ? 'text-[8px] px-1.5 py-0.5' : 'text-[10px] px-2 py-0.5 sm:px-2.5 sm:py-1'}
@@ -96,20 +96,25 @@ export const BenefitCard: React.FC<BenefitCardProps> = ({
             </button>
 
             {/* Logo Badge - Floating on bottom left of image */}
-            <div className={`absolute z-30 rounded-xl bg-white shadow-xl overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105
+            <div 
+                className={`absolute z-30 rounded-xl shadow-xl overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105
                 ${isCompact 
-                  ? 'w-10 h-10 p-1.5 bottom-2 left-2' 
-                  : 'w-16 h-16 p-3 bottom-2 left-2 sm:w-16 sm:h-16 sm:p-3 sm:bottom-3 sm:left-3'}
-            `}>
-                <img 
-                    src={benefit.logoUrl} 
-                    alt={benefit.provider} 
-                    className="w-full h-full object-contain"
-                    onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                        (e.target as HTMLImageElement).parentElement!.style.backgroundColor = benefit.brandColor;
-                    }}
-                />
+                  ? 'w-10 h-10 p-1.5 bottom-2 left-2 bg-white' 
+                  : 'w-16 h-16 p-3 bottom-2 left-2 sm:w-16 sm:h-16 sm:p-3 sm:bottom-3 sm:left-3 bg-white'}
+                `}
+                style={logoError ? { backgroundColor: benefit.brandColor } : {}}
+            >
+                {!logoError ? (
+                    <img 
+                        src={benefit.logoUrl} 
+                        alt={benefit.provider} 
+                        className="w-full h-full object-contain"
+                        onError={() => setLogoError(true)}
+                    />
+                ) : (
+                    // Fallback if logo fails
+                    <span className="text-[8px] font-bold text-white opacity-50">IMG</span>
+                )}
             </div>
         </div>
       </div>
@@ -175,3 +180,5 @@ export const BenefitCard: React.FC<BenefitCardProps> = ({
     </div>
   );
 };
+
+export const BenefitCard = memo(BenefitCardComponent);
