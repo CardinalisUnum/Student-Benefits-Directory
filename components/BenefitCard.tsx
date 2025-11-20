@@ -1,6 +1,8 @@
+
 import React, { useState, memo } from 'react';
 import { Lock, Heart, Zap, ArrowRight } from 'lucide-react';
 import { Benefit } from '../types';
+import { BrandLogo } from './BrandLogo';
 
 interface BenefitCardProps {
   benefit: Benefit;
@@ -20,7 +22,6 @@ const BenefitCardComponent: React.FC<BenefitCardProps> = ({
   variant = 'default'
 }) => {
   const [imgError, setImgError] = useState(false);
-  const [logoError, setLogoError] = useState(false);
   const isCompact = variant === 'compact';
   
   const handleActionClick = (e: React.MouseEvent) => {
@@ -95,27 +96,17 @@ const BenefitCardComponent: React.FC<BenefitCardProps> = ({
                 />
             </button>
 
-            {/* Logo Badge - Floating on bottom left of image */}
-            <div 
-                className={`absolute z-30 rounded-xl shadow-xl overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105
+            {/* Logo Badge - Using Custom SVG BrandLogo */}
+            <BrandLogo 
+                provider={benefit.provider}
+                name={benefit.name}
+                color={benefit.brandColor}
+                className={`absolute z-30 rounded-xl shadow-xl overflow-hidden transition-transform group-hover:scale-105 ring-1 ring-white/10
                 ${isCompact 
-                  ? 'w-10 h-10 p-1.5 bottom-2 left-2 bg-white' 
-                  : 'w-16 h-16 p-3 bottom-2 left-2 sm:w-16 sm:h-16 sm:p-3 sm:bottom-3 sm:left-3 bg-white'}
+                  ? 'w-10 h-10 bottom-2 left-2' 
+                  : 'w-14 h-14 bottom-2 left-2 sm:w-16 sm:h-16 sm:bottom-3 sm:left-3'}
                 `}
-                style={logoError ? { backgroundColor: benefit.brandColor } : {}}
-            >
-                {!logoError ? (
-                    <img 
-                        src={benefit.logoUrl} 
-                        alt={benefit.provider} 
-                        className="w-full h-full object-contain"
-                        onError={() => setLogoError(true)}
-                    />
-                ) : (
-                    // Fallback if logo fails
-                    <span className="text-[8px] font-bold text-white opacity-50">IMG</span>
-                )}
-            </div>
+            />
         </div>
       </div>
 

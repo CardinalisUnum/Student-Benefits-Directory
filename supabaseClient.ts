@@ -1,30 +1,26 @@
 
-import { createClient } from '@supabase/supabase-js';
-
 // ------------------------------------------------------------------
-// 🔐 SECURITY & DATABASE SETUP
+// NO DATABASE MODE
 // ------------------------------------------------------------------
-// To enable the secure database:
-// 1. Go to https://supabase.com and create a new project.
-// 2. Go to Project Settings -> API.
-// 3. Copy the "Project URL" and "anon public" key.
-// 4. Paste them below.
+// The application has been switched to a client-side only demo mode.
+// No API keys are required. Data is persisted to localStorage.
 // ------------------------------------------------------------------
-
-const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co'; 
-const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE';
-
-// Checks if the user has replaced the placeholder text with real keys
-const hasValidKeys = 
-  SUPABASE_URL.includes('YOUR_PROJECT_ID') === false && 
-  SUPABASE_ANON_KEY.includes('YOUR_ANON_KEY_HERE') === false;
-
-// Create the client only if keys are present to avoid console errors in demo mode
-export const supabase = createClient(
-  hasValidKeys ? SUPABASE_URL : 'https://placeholder.supabase.co', 
-  hasValidKeys ? SUPABASE_ANON_KEY : 'placeholder'
-);
 
 export const isSupabaseConfigured = () => {
-    return hasValidKeys;
+    return false; // Force false to disable DB logic globally
+};
+
+// Mock export to prevent build errors in legacy imports if any remain
+export const supabase = {
+    auth: {
+        getSession: async () => ({ data: { session: null } }),
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+        signInWithOtp: async () => ({ error: null }),
+        signOut: async () => ({ error: null })
+    },
+    from: () => ({
+        select: () => ({ eq: () => ({ single: async () => ({ data: null, error: null }) }) }),
+        insert: async () => ({ error: null }),
+        update: () => ({ eq: async () => ({ error: null }) })
+    })
 };

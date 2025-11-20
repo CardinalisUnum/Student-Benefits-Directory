@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { ShieldCheck, ShieldAlert, Filter, Database, Heart, Sparkles } from 'lucide-react';
 import { BENEFITS_DATA, CATEGORIES } from './constants';
@@ -10,7 +11,8 @@ import { PrivacyModal } from './components/PrivacyModal';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { FilterBar } from './components/FilterBar';
-import { supabase, isSupabaseConfigured } from './supabaseClient';
+
+const STORAGE_KEY = 'sbd_user_session';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -25,125 +27,68 @@ const App: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<Category>(Category.ALL);
 
-  // --- MEMOIZED FETCH & HELPERS ---
-
-  const fetchProfile = useCallback(async (userId: string, email?: string) => {
-    try {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching profile:', error);
-      }
-
-      if (profile) {
-        setUser({
-          id: profile.id,
-          name: profile.full_name || 'Student',
-          email: profile.email || email || '',
-          isVerified: profile.is_verified || false,
-          university: profile.university,
-          favorites: profile.favorites || []
-        });
-      } else {
-        const newProfile = { id: userId, email: email, favorites: [] };
-        await supabase.from('profiles').insert([newProfile]);
-        setUser({
-          id: userId,
-          name: 'Student',
-          email: email || '',
-          isVerified: false,
-          favorites: []
-        });
-      }
-    } catch (error) {
-      console.error('Profile load error', error);
-    } finally {
-      setLoadingUser(false);
+  // --- LOAD USER FROM LOCAL STORAGE ---
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+        try {
+            setUser(JSON.parse(stored));
+        } catch (e) {
+            console.error('Failed to parse user session');
+            localStorage.removeItem(STORAGE_KEY);
+        }
     }
+    setLoadingUser(false);
   }, []);
 
-  // --- EFFECT: AUTH STATE LISTENER ---
-  useEffect(() => {
-    const checkSession = async () => {
-      if (!isSupabaseConfigured()) {
-        const storedUser = localStorage.getItem('sbd_user');
-        if (storedUser) setUser(JSON.parse(storedUser));
-        setLoadingUser(false);
-        return;
-      }
+  // --- EVENT HANDLERS ---
 
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session?.user) {
-        await fetchProfile(session.user.id, session.user.email);
-      } else {
-        setLoadingUser(false);
-      }
+  const handleLogin = useCallback((email: string, name?: string) => {
+    const newUser: User = {
+        id: 'local-' + Date.now(),
+        email,
+        name: name || 'Student',
+        isVerified: false,
+        favorites: [],
+        university: undefined
     };
+    setUser(newUser);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newUser));
+  }, []);
 
-    checkSession();
-
-    if (isSupabaseConfigured()) {
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-        if (event === 'SIGNED_IN' && session?.user) {
-            await fetchProfile(session.user.id, session.user.email);
-        } else if (event === 'SIGNED_OUT') {
-            setUser(null);
-            setSelectedCategory(Category.ALL);
-        }
-        });
-        return () => subscription.unsubscribe();
-    }
-  }, [fetchProfile]);
-
-  // --- EVENT HANDLERS (MEMOIZED) ---
-
-  const handleLogout = useCallback(async () => {
-    if (isSupabaseConfigured()) {
-      await supabase.auth.signOut();
-    } 
+  const handleLogout = useCallback(() => {
     setUser(null);
-    localStorage.removeItem('sbd_user');
+    localStorage.removeItem(STORAGE_KEY);
     setSelectedCategory(Category.ALL);
   }, []);
 
-  const handleVerificationSuccess = useCallback(async () => {
-    if (user && isSupabaseConfigured()) {
-      await fetchProfile(user.id, user.email);
-    } else if (user) {
-       const updatedUser = { ...user, isVerified: true };
-       setUser(updatedUser);
-       localStorage.setItem('sbd_user', JSON.stringify(updatedUser));
-    }
-  }, [user, fetchProfile]);
+  const handleVerificationSuccess = useCallback((email: string) => {
+    if (!user) return;
+    const university = email.split('@')[1];
+    const updatedUser = { 
+        ...user, 
+        isVerified: true, 
+        email: email,
+        university: university
+    };
+    setUser(updatedUser);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUser));
+  }, [user]);
 
-  const toggleFavorite = useCallback(async (benefitId: string) => {
-    // If no user is logged in, prompt auth
+  const toggleFavorite = useCallback((benefitId: string) => {
     if (!user) {
       setIsAuthModalOpen(true);
       return;
     }
 
-    // Optimistic update
     const isFav = user.favorites.includes(benefitId);
     const newFavorites = isFav 
       ? user.favorites.filter(id => id !== benefitId)
       : [...user.favorites, benefitId];
 
-    setUser(prev => prev ? ({ ...prev, favorites: newFavorites }) : null);
-
-    if (isSupabaseConfigured()) {
-      await supabase
-        .from('profiles')
-        .update({ favorites: newFavorites })
-        .eq('id', user.id);
-    } else {
-       localStorage.setItem('sbd_user', JSON.stringify({ ...user, favorites: newFavorites }));
-    }
+    const updatedUser = { ...user, favorites: newFavorites };
+    setUser(updatedUser);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUser));
   }, [user]);
 
   const handleUnlockRequest = useCallback(() => {
@@ -326,6 +271,7 @@ const App: React.FC = () => {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
+        onLogin={handleLogin}
       />
       <PrivacyModal 
         isOpen={isPrivacyModalOpen}

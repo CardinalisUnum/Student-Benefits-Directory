@@ -1,3 +1,4 @@
+
 import React, { useRef } from 'react';
 import { ChevronLeft, ChevronRight, Flame } from 'lucide-react';
 import { Benefit } from '../types';

@@ -1,3 +1,4 @@
+
 import React, { memo, useRef, useState } from 'react';
 import { Search, X, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Category } from '../types';

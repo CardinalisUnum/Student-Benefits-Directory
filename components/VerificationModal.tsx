@@ -1,14 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, GraduationCap, Check, AlertCircle, Loader2, ShieldCheck } from 'lucide-react';
-import { supabase, isSupabaseConfigured } from '../supabaseClient';
 import { User } from '../types';
 
 interface VerificationModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentUser: User | null;
-  onVerificationSuccess: () => void;
+  onVerificationSuccess: (email: string) => void;
 }
 
 export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, onClose, currentUser, onVerificationSuccess }) => {
@@ -33,6 +32,7 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, on
     setError('');
     setIsLoading(true);
 
+    // Strict Regex for .edu.ph
     const eduPhRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.edu\.ph$/;
 
     if (!eduPhRegex.test(email)) {
@@ -42,24 +42,12 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, on
     }
 
     try {
-      if (isSupabaseConfigured() && currentUser) {
-         const { error: updateError } = await supabase
-           .from('profiles')
-           .update({ 
-             is_verified: true,
-             university: email.split('@')[1], 
-             email: email
-           })
-           .eq('id', currentUser.id);
-
-         if (updateError) throw updateError;
-      } else {
-          await new Promise(resolve => setTimeout(resolve, 1000));
-      }
+      // Simulate verification check delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
       setIsSuccess(true);
       setTimeout(() => {
-        onVerificationSuccess();
+        onVerificationSuccess(email);
         onClose();
       }, 1500);
 
@@ -157,7 +145,7 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, on
               <div className="flex gap-3 items-start mt-4 px-1">
                  <ShieldCheck size={16} className="text-emerald-400 mt-0.5 shrink-0" />
                  <p className="text-[10px] text-slate-500 leading-relaxed">
-                    <strong>Privacy Protocol:</strong> We only verify domain validity. No personal data or grades are accessed. Data is encrypted.
+                    <strong>Privacy Protocol:</strong> We only verify domain validity. No personal data or grades are accessed.
                  </p>
               </div>
             </form>

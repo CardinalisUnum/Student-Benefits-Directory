@@ -1,17 +1,17 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, Mail, Lock, User as UserIcon, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
-import { supabase, isSupabaseConfigured } from '../supabaseClient';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onLogin: (email: string, name?: string) => void;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
-  const [fullName, setFullName] = useState(''); // Only used for initial profile creation if needed
+  const [fullName, setFullName] = useState('');
   const [error, setError] = useState('');
   const [magicLinkSent, setMagicLinkSent] = useState(false);
 
@@ -31,11 +31,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     e.preventDefault();
     setError('');
     
-    if (!isSupabaseConfigured()) {
-      setError('Supabase is not configured. Please add your API keys in supabaseClient.ts');
-      return;
-    }
-
     if (!email.includes('@')) {
       setError('Please enter a valid email address.');
       return;
@@ -43,26 +38,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
     setIsLoading(true);
 
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          // In a real app, you can set a redirect URL here
-          // emailRedirectTo: window.location.origin,
-          data: {
-            full_name: fullName
-          }
-        },
-      });
+    // Simulate network delay and magic link sending
+    setTimeout(() => {
+        setIsLoading(false);
+        setMagicLinkSent(true);
+    }, 1500);
+  };
 
-      if (error) throw error;
-
-      setMagicLinkSent(true);
-    } catch (err: any) {
-      setError(err.message || 'An error occurred sending the login link.');
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSimulateAccess = () => {
+      onLogin(email, fullName || 'Student');
+      onClose();
   };
 
   return (
@@ -99,8 +84,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               <h3 className="text-xl font-bold text-white mb-2">Check your email</h3>
               <p className="text-slate-400 mb-6">
                 We sent a magic link to <span className="text-white font-medium">{email}</span>.<br/>
-                Click it to log in instantly.
+                Click the link to log in.
               </p>
+              
+              {/* Demo Utility since we can't send real emails */}
+              <button
+                onClick={handleSimulateAccess}
+                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 px-4 rounded-xl transition-all mb-3 shadow-lg shadow-indigo-500/25"
+              >
+                Enter Vault (Demo)
+              </button>
+
               <button
                 onClick={onClose}
                 className="w-full bg-slate-800 hover:bg-slate-700 text-white font-medium py-3 px-4 rounded-xl transition-all"
